@@ -37,7 +37,7 @@ final class SpectreZone extends PluginBase {
 			[
 				'id' => 400,
 				'meta' => 0,
-				'namespace' => 'SpectreZone:ectoplasm',
+				'namespace' => 'spectrezone:ectoplasm',
 				'creative_category' => 'items',
 				'max_stack_size' => 64,
 				'texture' => 'ectoplasm'
@@ -49,7 +49,7 @@ final class SpectreZone extends PluginBase {
 			[
 				'id' => 401,
 				'meta' => 0,
-				'namespace' => 'SpectreZone:spectre_ingot',
+				'namespace' => 'spectrezone:spectre_ingot',
 				'creative_category' => 'items',
 				'max_stack_size' => 64,
 				'texture' => 'spectre_ingot'
@@ -61,8 +61,9 @@ final class SpectreZone extends PluginBase {
 			[
 				'id' => 402,
 				'meta' => 0,
-				'namespace' => 'SpectreZone:SpectreKey',
+				'namespace' => 'spectrezone:spectre_key',
 				'creative_category' => 'items',
+				'use_duration' => 5,
 				'max_stack_size' => 1,
 				'texture' => 'spectre_key'
 			],
