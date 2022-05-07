@@ -17,6 +17,7 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\world\generator\GeneratorManager;
+use pocketmine\world\generator\InvalidGeneratorOptionsException;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\world\WorldCreationOptions;
@@ -136,7 +137,21 @@ final class SpectreZone extends PluginBase {
 
 		// Register world generator
 
-		GeneratorManager::getInstance()->addGenerator(SpectreZoneGenerator::class, 'SpectreZone', \Closure::fromCallable(fn() => null));
+		GeneratorManager::getInstance()->addGenerator(
+			SpectreZoneGenerator::class,
+			'SpectreZone',
+			\Closure::fromCallable(
+				function(string $generatorOptions) {
+					$parsedOptions = \json_decode($generatorOptions, true, flags: JSON_THROW_ON_ERROR);
+					if(!is_int($parsedOptions['Chunk Offset']) or $parsedOptions['Chunk Offset'] < 0) {
+						return new InvalidGeneratorOptionsException();
+					}elseif(!is_int($parsedOptions['Default Height']) or $parsedOptions['Default Height'] < 2) {
+						return new InvalidGeneratorOptionsException();
+					}
+					return null;
+				}
+			)
+		);
 
 		// Load or generate the SpectreZone dimension
 		$worldManager = $server->getWorldManager();
