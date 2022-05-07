@@ -181,7 +181,59 @@ final class SpectreZone extends PluginBase {
 		$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 1);
 
 		// register events
-		$server->getPluginManager()->registerEvent(
+		$pluginManager = $server->getPluginManager();
+		$pluginManager->registerEvent(
+			PlayerLoginEvent::class,
+			\Closure::fromCallable(
+				function(PlayerLoginEvent $event) {
+					$event->getPlayer()->getNetworkSession()->sendDataPacket(ItemComponentPacket::create(self::$packetEntries));
+				}
+			),
+			EventPriority::MONITOR,
+			$this
+		);
+		$pluginManager->registerEvent(
+			DataPacketSendEvent::class,
+			\Closure::fromCallable(
+				function(DataPacketSendEvent $event) {
+					$packets = $event->getPackets();
+					foreach($packets as $packet){
+						if($packet instanceof StartGamePacket){
+							$packet->levelSettings->experiments = new Experiments([
+								"data_driven_items" => true,
+								'holiday_creator_features' => true,
+								'upcoming_creator_features' => true,
+							], true);
+						}elseif($packet instanceof ResourcePackStackPacket){
+							$packet->experiments = new Experiments([
+								"data_driven_items" => true,
+								'holiday_creator_features' => true,
+								'upcoming_creator_features' => true,
+							], true);
+						}elseif($packet instanceof ItemComponentPacket and
+							count(array_filter($packet->getEntries(),
+								function(ItemComponentPacketEntry $entry) {
+									return str_contains($entry->getName(), mb_strtolower($this->getName()));
+								}
+							)) < 3
+						) {
+							$event->cancel();
+
+							$entries = $packet->getEntries();
+							array_push($entries, ...self::$packetEntries);
+							$this->getServer()->broadcastPackets(
+								array_map(fn(NetworkSession $session) => $session->getPlayer(), $event->getTargets()),
+								[ItemComponentPacket::create($entries)]
+							);
+						}
+					}
+				}
+			),
+			EventPriority::LOWEST,
+			$this,
+			false // Don't waste time on cancelled events
+		);
+		$pluginManager->registerEvent(
 			PlayerQuitEvent::class,
 			\Closure::fromCallable(
 				function(PlayerQuitEvent $event) {
