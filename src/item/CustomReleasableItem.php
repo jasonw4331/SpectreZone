@@ -2,19 +2,24 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone\item;
 
-use alvin0319\CustomItemLoader\item\CustomItem;
+use pocketmine\item\Item;
+use pocketmine\item\ItemIdentifier;
 use pocketmine\item\ItemUseResult;
 use pocketmine\item\Releasable;
 use pocketmine\player\Player;
 
-class CustomReleasableItem extends CustomItem implements Releasable {
+class CustomReleasableItem extends Item implements Releasable {
 
-	/** @var callable */
+	/** @var callable|null $onRelease */
 	protected $onRelease;
 
-	public function __construct(string $name, array $data, callable $onRelease){
-		parent::__construct($name, $data);
+	public function __construct(ItemIdentifier $identifier, string $name = "Unknown", ?callable $onRelease = null){
+		parent::__construct($identifier, $name);
 		$this->onRelease = $onRelease;
+	}
+
+	public function getMaxStackSize() : int{
+		return 1;
 	}
 
 	public function onReleaseUsing(Player $player) : ItemUseResult{

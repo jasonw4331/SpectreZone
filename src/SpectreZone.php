@@ -2,25 +2,42 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
-use alvin0319\CustomItemLoader\CustomItemManager;
-use alvin0319\CustomItemLoader\item\CustomItem;
 use jasonwynn10\SpectreZone\item\CustomReleasableItem;
-use jasonwynn10\SpectreZone\lib\JsonStreamingParser\Listener\SimpleObjectQueueListener;
-use jasonwynn10\SpectreZone\lib\JsonStreamingParser\Parser;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
+use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\inventory\CreativeInventory;
+use pocketmine\item\Item;
+use pocketmine\item\ItemFactory;
+use pocketmine\item\ItemIdentifier;
 use pocketmine\item\ItemUseResult;
+use pocketmine\item\StringToItemParser;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
+use pocketmine\network\mcpe\convert\ItemTranslator;
+use pocketmine\network\mcpe\NetworkSession;
+use pocketmine\network\mcpe\protocol\ItemComponentPacket;
+use pocketmine\network\mcpe\protocol\ResourcePackStackPacket;
+use pocketmine\network\mcpe\protocol\serializer\ItemTypeDictionary;
+use pocketmine\network\mcpe\protocol\StartGamePacket;
+use pocketmine\network\mcpe\protocol\types\CacheableNbt;
+use pocketmine\network\mcpe\protocol\types\Experiments;
+use pocketmine\network\mcpe\protocol\types\ItemComponentPacketEntry;
+use pocketmine\network\mcpe\protocol\types\ItemTypeEntry;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\resourcepacks\ResourcePack;
+use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\world\generator\GeneratorManager;
 use pocketmine\world\generator\InvalidGeneratorOptionsException;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\world\WorldCreationOptions;
+use Webmozart\PathUtil\Path;
 
 final class SpectreZone extends PluginBase {
 	private array $savedPositions = [];
@@ -31,42 +48,9 @@ final class SpectreZone extends PluginBase {
 		$server = $this->getServer();
 
 		// register custom items
-		$itemManager = CustomItemManager::getInstance();
-		$ectoplasm = new CustomItem(
-			'Ectoplasm',
-			[
-				'id' => 400,
-				'meta' => 0,
-				'namespace' => 'spectrezone:ectoplasm',
-				'creative_category' => 'items',
-				'max_stack_size' => 64,
-				'texture' => 'ectoplasm'
-			]
-		);
-		$itemManager->registerItem($ectoplasm);
-		$spectreIngot = new CustomItem(
-			'Spectre Ingot',
-			[
-				'id' => 401,
-				'meta' => 0,
-				'namespace' => 'spectrezone:spectre_ingot',
-				'creative_category' => 'items',
-				'max_stack_size' => 64,
-				'texture' => 'spectre_ingot'
-			]
-		);
-		$itemManager->registerItem($spectreIngot);
-		$spectreKey = new CustomReleasableItem(
-			'Spectre Key',
-			[
-				'id' => 402,
-				'meta' => 0,
-				'namespace' => 'spectrezone:spectre_key',
-				'creative_category' => 'items',
-				'use_duration' => 5,
-				'max_stack_size' => 1,
-				'texture' => 'spectre_key'
-			],
+		$this->registerCustomItem($ectoplasm = new Item(new ItemIdentifier(400, 0), "Ectoplasm"), $this->getName());
+		$this->registerCustomItem($spectreIngot = new Item(new ItemIdentifier(401, 0), "Spectre Ingot"), $this->getName());
+		$this->registerCustomItem($spectreKey = new CustomReleasableItem(new ItemIdentifier(402, 0), "Spectre Key",
 			function(Player $player) {
 				if($player->getWorld() === $this->getServer()->getWorldManager()->getWorldByName('SpectreZone')) {
 					$position = $this->getSavedPosition($player);
@@ -77,14 +61,18 @@ final class SpectreZone extends PluginBase {
 				$player->teleport($position);
 
 				return ItemUseResult::NONE(); // TODO: test return ItemUseResult::SUCCESS()
-			}
+			}),
+			$this->getName(),
+			CompoundTag::create()
+				->setByte("allow_off_hand", 0)
+				->setByte("hand_equipped", 1)
+				->setInt("max_stack_size", 1)
+				->setInt("use_animation", 0) // TODO: find throw animation
+				->setTag('minecraft:throwable', CompoundTag::create()
+					->setFloat('min_draw_duration', 5.0) // Only activate key after 5 seconds
+					->setFloat('max_draw_duration', 15.0) // Force key to release after 15 seconds
+				)
 		);
-		$spectreKey->getProperties()->getNbt()->setTag('minecraft:throwable', CompoundTag::create()
-			->setByte('throwable', 1) // Enable item use-by-throw animation
-			->setFloat('min_draw_duration', 5.0) // Only activate key after 5 seconds
-			->setFloat('max_draw_duration', 5.0) // Force key to activate after 5 seconds
-		);
-		$itemManager->registerItem($spectreKey);
 
 		// register custom item recipes
 		$craftManager = $server->getCraftingManager();
@@ -192,6 +180,70 @@ final class SpectreZone extends PluginBase {
 			$this,
 			true // doesn't really matter because event cannot be cancelled
 		);
+	}
+
+	private function registerCustomItem(Item $item, string $namespace, ?CompoundTag $propertiesTag = null): void{
+		// Get the current net id map information from the core
+		$ref = new \ReflectionClass(ItemTranslator::class);
+		$coreToNetMap = $ref->getProperty("simpleCoreToNetMapping");
+		$netToCoreMap = $ref->getProperty("simpleNetToCoreMapping");
+		$coreToNetMap->setAccessible(true);
+		$netToCoreMap->setAccessible(true);
+
+		$coreMap = $coreToNetMap->getValue(ItemTranslator::getInstance());
+		$netMap = $netToCoreMap->getValue(ItemTranslator::getInstance());
+
+		$legacyId = $item->getId();
+
+		// Add the new custom item to the core mapping
+		$runtimeId = $legacyId + ($legacyId > 0 ? 5000 : -5000);
+		$coreMap[$legacyId] = $runtimeId;
+		$netMap[$runtimeId] = $legacyId;
+
+		// Save the new core mapping
+		$coreToNetMap->setValue(ItemTranslator::getInstance(), $coreMap);
+		$netToCoreMap->setValue(ItemTranslator::getInstance(), $netMap);
+
+		// Get the current item type map information from the core
+		$ref_1 = new \ReflectionClass(ItemTypeDictionary::class);
+		$itemTypeMap = $ref_1->getProperty("itemTypes");
+		$itemTypeMap->setAccessible(true);
+
+		$itemTypeEntries = $itemTypeMap->getValue(GlobalItemTypeDictionary::getInstance()->getDictionary());
+
+		$fullName = mb_strtolower($namespace.':'.str_replace(' ', '_', $item->getVanillaName()));
+
+		// Add the new custom item's type entry to the type map
+		$itemTypeEntries[] = new ItemTypeEntry($fullName, $runtimeId, true);
+
+		// Save the new type map
+		$itemTypeMap->setValue(GlobalItemTypeDictionary::getInstance()->getDictionary(), $itemTypeEntries);
+
+		self::$packetEntries[] = new ItemComponentPacketEntry($fullName,
+			new CacheableNbt(CompoundTag::create()
+				->setTag("components", CompoundTag::create()
+					->setTag("item_properties", CompoundTag::create()
+						->setByte("allow_off_hand", 0)
+						->setByte("hand_equipped", 1)
+						->setInt("max_stack_size", 64)
+						->setByte("creative_category", 4) // // 1 construction 2 nature 3 equipment 4 items
+						->setTag("minecraft:icon", CompoundTag::create()
+							->setString("texture", mb_strtolower(str_replace(' ', '_', $item->getVanillaName())))
+							->setString("legacy_id", $fullName)
+						)
+						->merge($propertiesTag ?? CompoundTag::create())
+					)
+					->setShort("minecraft:identifier", $runtimeId)
+					->setTag("minecraft:display_name", CompoundTag::create()
+						->setString("value", $item->getVanillaName())
+					)
+				)
+			)
+		);
+
+		ItemFactory::getInstance()->register($item, true);
+		CreativeInventory::getInstance()->add($item);
+		StringToItemParser::getInstance()->register($item->getVanillaName(), fn() => $item);
 	}
 
 	public function getDefaultHeight() : int{

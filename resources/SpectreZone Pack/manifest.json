@@ -1,0 +1,37 @@
+{
+    "format_version": 2,
+    "header": {
+        "description": "pack.description",
+        "name": "pack.name",
+        "uuid": "13a1c9d4-650f-4809-be33-bc7f1c438b90",
+        "version": [
+            1,
+            0,
+            0
+        ],
+        "min_engine_version": [
+            1,
+            16,
+            100
+        ]
+    },
+    "modules": [
+        {
+            "description": "pack.description",
+            "type": "resources",
+            "uuid": "cb858819-e1ba-40e5-b066-4635265d6df1",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ],
+    "metadata": {
+        "authors": [
+            "jasonwynn10"
+        ],
+        "license": "lgpl-3.0-or-later",
+        "url": "https://github.com/jasonwynn10/SpectreZone"
+    }
+}

@@ -1,0 +1,25 @@
+{
+	"format_version": "1.16.1",
+	"minecraft:item": {
+		"description": {
+			"identifier": "SpectreZone:spectre_key",
+			"category": "items"
+		},
+		"components": {
+			"minecraft:icon": {
+				"texture": "spectre_key",
+				"legacy_id": "5402"
+			},
+			"minecraft:hand_equipped": true,
+			"minecraft:max_stack_size": 1,
+			"minecraft:throwable":{
+				"do_swing_animation": true,
+				"launch_power_scale": 1.0,
+				"max_draw_duration": 15.0,
+				"max_launch_power": 1.0,
+				"min_draw_duration": 5.0,
+				"scale_power_by_draw_duration": false
+			}
+		}
+	}
+}

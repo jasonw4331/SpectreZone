@@ -1,0 +1,15 @@
+{
+    "resource_pack_name": "SpectreZone",
+    "texture_name": "atlas.items",
+    "texture_data": {
+        "spectre_key": {
+            "textures": "textures/items/spectre_key"
+        },
+        "spectre_ingot": {
+            "textures": "textures/items/spectre_ingot"
+        },
+        "ectoplasm": {
+            "textures": "textures/items/ectoplasm"
+        }
+    }
+}
