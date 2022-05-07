@@ -76,7 +76,7 @@ final class SpectreZone extends PluginBase {
 				)
 		);
 
-		// register custom item recipes
+		// register custom recipes
 		$craftManager = $server->getCraftingManager();
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
 			[
@@ -142,7 +142,6 @@ final class SpectreZone extends PluginBase {
 		$this->registerResourcePack(self::$pack = new ZippedResourcePack(Path::join($packManager->getPath(), $this->getName().'.mcpack')));
 
 		// Register world generator
-
 		GeneratorManager::getInstance()->addGenerator(
 			SpectreZoneGenerator::class,
 			'SpectreZone',
@@ -156,13 +155,14 @@ final class SpectreZone extends PluginBase {
 					}
 					return null;
 				}
-			)
+			),
+			false // There should never be another generator with the same name
 		);
 
 		// Load or generate the SpectreZone dimension
 		$worldManager = $server->getWorldManager();
 		if(!$worldManager->loadWorld('SpectreZone')) {
-			$server->getWorldManager()->generateWorld(
+			$worldManager->generateWorld(
 				'SpectreZone',
 				WorldCreationOptions::create()
 					->setGeneratorClass(SpectreZoneGenerator::class)
