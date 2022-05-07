@@ -322,17 +322,6 @@ final class SpectreZone extends PluginBase {
 		$spectreZone = $this->getServer()->getWorldManager()->getWorldByName('SpectreZone');
 		\assert($spectreZone !== null);
 
-		$stream = fopen($this->getDataFolder().'zones.json', 'r');
-		$listener = new SimpleObjectQueueListener(fn(array $currentObject) => \var_dump($currentObject));
-		try {
-			$parser = new Parser($stream, $listener);
-			$parser->parse();
-		} catch (\Exception $e) {
-			$this->getLogger()->logException($e);
-		}finally{
-			fclose($stream);
-		}
-
 		return $player->getPosition(); // TODO: replace placeholder with actual spawn position
 	}
 
