@@ -40,6 +40,8 @@ use pocketmine\world\WorldCreationOptions;
 use Webmozart\PathUtil\Path;
 
 final class SpectreZone extends PluginBase {
+	private static array $packetEntries = [];
+	private static ?ResourcePack $pack = null;
 	private array $savedPositions = [];
 	private int $defaultHeight = 4;
 	private int $chunkOffset = 1;
@@ -124,6 +126,21 @@ final class SpectreZone extends PluginBase {
 
 		// TODO: register custom blocks
 
+		// Compile resource pack
+		$packManager = $server->getResourcePackManager();
+		$zip = new \ZipArchive();
+		$zip->open(Path::join($packManager->getPath(), $this->getName().'.mcpack'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+		foreach($this->getResources() as $resource){
+			if($resource->isFile() and str_contains($resource->getPathname(), 'SpectreZone Pack')){
+				$relativePath = Path::normalize(preg_replace("/.*[\/\\\\]SpectreZone\hPack[\/\\\\].*/U", '', $resource->getPathname()));
+				$zip->addFile(Path::normalize($resource->getPathname()), $relativePath);
+			}
+		}
+		$zip->close();
+
+		// Register resource pack
+		$this->registerResourcePack(self::$pack = new ZippedResourcePack(Path::join($packManager->getPath(), $this->getName().'.mcpack')));
+
 		// Register world generator
 
 		GeneratorManager::getInstance()->addGenerator(
@@ -180,6 +197,31 @@ final class SpectreZone extends PluginBase {
 			$this,
 			true // doesn't really matter because event cannot be cancelled
 		);
+	}
+
+	public function onDisable() : void {
+		$manager = $this->getServer()->getResourcePackManager();
+		$pack = self::$pack;
+
+		$reflection = new \ReflectionClass($manager);
+
+		$property = $reflection->getProperty("resourcePacks");
+		$property->setAccessible(true);
+		$currentResourcePacks = $property->getValue($manager);
+		$key = array_search($pack, $currentResourcePacks);
+		if($key !== false){
+			unset($currentResourcePacks[$key]);
+			$property->setValue($manager, $currentResourcePacks);
+		}
+
+		$property = $reflection->getProperty("uuidList");
+		$property->setAccessible(true);
+		$currentUUIDPacks = $property->getValue($manager);
+		if(isset($currentResourcePacks[strtolower($pack->getPackId())])) {
+			unset($currentUUIDPacks[strtolower($pack->getPackId())]);
+			$property->setValue($manager, $currentUUIDPacks);
+		}
+		unlink(Path::join($manager->getPath(), $this->getName().'.mcpack'));
 	}
 
 	private function registerCustomItem(Item $item, string $namespace, ?CompoundTag $propertiesTag = null): void{
@@ -244,6 +286,28 @@ final class SpectreZone extends PluginBase {
 		ItemFactory::getInstance()->register($item, true);
 		CreativeInventory::getInstance()->add($item);
 		StringToItemParser::getInstance()->register($item->getVanillaName(), fn() => $item);
+	}
+
+	private function registerResourcePack(ResourcePack $pack){
+		$manager = $this->getServer()->getResourcePackManager();
+
+		$reflection = new \ReflectionClass($manager);
+
+		$property = $reflection->getProperty("resourcePacks");
+		$property->setAccessible(true);
+		$currentResourcePacks = $property->getValue($manager);
+		$currentResourcePacks[] = $pack;
+		$property->setValue($manager, $currentResourcePacks);
+
+		$property = $reflection->getProperty("uuidList");
+		$property->setAccessible(true);
+		$currentUUIDPacks = $property->getValue($manager);
+		$currentUUIDPacks[strtolower($pack->getPackId())] = $pack;
+		$property->setValue($manager, $currentUUIDPacks);
+
+		$property = $reflection->getProperty("serverForceResources");
+		$property->setAccessible(true);
+		$property->setValue($manager, true);
 	}
 
 	public function getDefaultHeight() : int{
