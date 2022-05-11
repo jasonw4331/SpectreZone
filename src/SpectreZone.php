@@ -278,33 +278,37 @@ final class SpectreZone extends PluginBase {
 	}
 
 	private function registerCustomItem(Item $item, string $namespace, ?CompoundTag $propertiesTag = null): void{
+		$itemTranslator = ItemTranslator::getInstance();
+
 		// Get the current net id map information from the core
-		$ref = new \ReflectionClass(ItemTranslator::class);
+		$ref = new \ReflectionClass($itemTranslator);
 		$coreToNetMap = $ref->getProperty("simpleCoreToNetMapping");
 		$netToCoreMap = $ref->getProperty("simpleNetToCoreMapping");
 		$coreToNetMap->setAccessible(true);
 		$netToCoreMap->setAccessible(true);
 
-		$coreMap = $coreToNetMap->getValue(ItemTranslator::getInstance());
-		$netMap = $netToCoreMap->getValue(ItemTranslator::getInstance());
+		$coreToNetValues = $coreToNetMap->getValue($itemTranslator);
+		$netToCoreValues = $netToCoreMap->getValue($itemTranslator);
 
 		$legacyId = $item->getId();
+		$runtimeId = $legacyId + ($legacyId > 0 ? 5000 : -5000);
 
 		// Add the new custom item to the core mapping
-		$runtimeId = $legacyId + ($legacyId > 0 ? 5000 : -5000);
-		$coreMap[$legacyId] = $runtimeId;
-		$netMap[$runtimeId] = $legacyId;
+		$coreToNetValues[$legacyId] = $runtimeId;
+		$netToCoreValues[$runtimeId] = $legacyId;
 
 		// Save the new core mapping
-		$coreToNetMap->setValue(ItemTranslator::getInstance(), $coreMap);
-		$netToCoreMap->setValue(ItemTranslator::getInstance(), $netMap);
+		$coreToNetMap->setValue($itemTranslator, $coreToNetValues);
+		$netToCoreMap->setValue($itemTranslator, $netToCoreValues);
+
+		$typeDictionary = GlobalItemTypeDictionary::getInstance()->getDictionary();
 
 		// Get the current item type map information from the core
-		$ref_1 = new \ReflectionClass(ItemTypeDictionary::class);
+		$ref_1 = new \ReflectionClass($typeDictionary);
 		$itemTypeMap = $ref_1->getProperty("itemTypes");
 		$itemTypeMap->setAccessible(true);
 
-		$itemTypeEntries = $itemTypeMap->getValue(GlobalItemTypeDictionary::getInstance()->getDictionary());
+		$itemTypeEntries = $itemTypeMap->getValue($typeDictionary);
 
 		$fullName = mb_strtolower($namespace.':'.str_replace(' ', '_', $item->getVanillaName()));
 
@@ -312,7 +316,7 @@ final class SpectreZone extends PluginBase {
 		$itemTypeEntries[] = new ItemTypeEntry($fullName, $runtimeId, true);
 
 		// Save the new type map
-		$itemTypeMap->setValue(GlobalItemTypeDictionary::getInstance()->getDictionary(), $itemTypeEntries);
+		$itemTypeMap->setValue($typeDictionary, $itemTypeEntries);
 
 		self::$packetEntries[] = new ItemComponentPacketEntry($fullName,
 			new CacheableNbt(CompoundTag::create()
