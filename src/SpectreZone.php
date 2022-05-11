@@ -66,10 +66,11 @@ final class SpectreZone extends PluginBase {
 			}),
 			$this->getName(),
 			CompoundTag::create()
+				//->setInt("use_duration", 32)
+				//->setInt("use_animation", 0) // TODO: find throw animation
+				->setByte("creative_category", 4) // 1 construction 2 nature 3 equipment 4 items
 				->setByte("allow_off_hand", 0)
-				->setByte("hand_equipped", 1)
 				->setInt("max_stack_size", 1)
-				->setInt("use_animation", 0) // TODO: find throw animation
 				->setTag('minecraft:throwable', CompoundTag::create()
 					->setFloat('min_draw_duration', 5.0) // Only activate key after 5 seconds
 					->setFloat('max_draw_duration', 15.0) // Force key to release after 15 seconds
@@ -317,20 +318,29 @@ final class SpectreZone extends PluginBase {
 			new CacheableNbt(CompoundTag::create()
 				->setTag("components", CompoundTag::create()
 					->setTag("item_properties", CompoundTag::create()
-						->setByte("allow_off_hand", 0)
+						->setInt("use_duration", 32)
+						->setInt("use_animation", 0) // 0 none 1 food 2 potion
+						->setByte("allow_off_hand", 1)
+						->setByte("can_destroy_in_creative", 1)
+						->setByte("creative_category", 4) // 1 construction 2 nature 3 equipment 4 items
 						->setByte("hand_equipped", 1)
 						->setInt("max_stack_size", 64)
-						->setByte("creative_category", 4) // // 1 construction 2 nature 3 equipment 4 items
+						->setFloat("mining_speed", 1)
 						->setTag("minecraft:icon", CompoundTag::create()
-							->setString("texture", mb_strtolower(str_replace(' ', '_', $item->getVanillaName())))
+							->setString("texture", $simpleName)
 							->setString("legacy_id", $fullName)
 						)
 						->merge($propertiesTag ?? CompoundTag::create())
 					)
-					->setShort("minecraft:identifier", $runtimeId)
-					->setTag("minecraft:display_name", CompoundTag::create()
-						->setString("value", $item->getVanillaName())
-					)
+				)
+				->setShort("minecraft:identifier", $runtimeId)
+				->setTag("minecraft:display_name", CompoundTag::create()
+					->setString("value", $item->getVanillaName())
+				)
+				->setTag("minecraft:on_use", CompoundTag::create()
+					->setByte("on_use", 1)
+				)->setTag("minecraft:on_use_on", CompoundTag::create()
+					->setByte("on_use_on", 1)
 				)
 			)
 		);
