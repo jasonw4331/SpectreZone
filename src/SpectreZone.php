@@ -310,7 +310,8 @@ final class SpectreZone extends PluginBase {
 
 		$itemTypeEntries = $itemTypeMap->getValue($typeDictionary);
 
-		$fullName = mb_strtolower($namespace.':'.str_replace(' ', '_', $item->getVanillaName()));
+		$simpleName = mb_strtolower(str_replace(' ', '_', $item->getVanillaName()));
+		$fullName = mb_strtolower($namespace).':'.$simpleName;
 
 		// Add the new custom item's type entry to the type map
 		$itemTypeEntries[] = new ItemTypeEntry($fullName, $runtimeId, true);
