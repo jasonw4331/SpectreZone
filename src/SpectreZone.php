@@ -345,7 +345,7 @@ final class SpectreZone extends PluginBase {
 			)
 		);
 
-		ItemFactory::getInstance()->register($item, true);
+		ItemFactory::getInstance()->register($item, false); // Item should be unique, so we don't override here
 		CreativeInventory::getInstance()->add($item);
 		StringToItemParser::getInstance()->register($item->getVanillaName(), fn() => $item);
 	}
