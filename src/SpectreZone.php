@@ -22,7 +22,6 @@ use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\ItemComponentPacket;
 use pocketmine\network\mcpe\protocol\ResourcePackStackPacket;
-use pocketmine\network\mcpe\protocol\serializer\ItemTypeDictionary;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\CacheableNbt;
 use pocketmine\network\mcpe\protocol\types\Experiments;
