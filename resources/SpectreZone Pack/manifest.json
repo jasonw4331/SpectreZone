@@ -1,8 +1,8 @@
 {
     "format_version": 2,
     "header": {
-        "description": "pack.description",
-        "name": "pack.name",
+        "description": "SpectreZone Plugin Resources",
+        "name": "spectrezone",
         "uuid": "13a1c9d4-650f-4809-be33-bc7f1c438b90",
         "version": [
             1,
@@ -17,7 +17,7 @@
     },
     "modules": [
         {
-            "description": "pack.description",
+            "description": "SpectreZone Plugin Resources",
             "type": "resources",
             "uuid": "cb858819-e1ba-40e5-b066-4635265d6df1",
             "version": [

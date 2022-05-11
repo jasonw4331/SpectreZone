@@ -1,5 +1,3 @@
-pack.name=SpectreZone
-pack.description=SpectreZone Plugin Resources
 item.SpectreZone:spectre_key=Spectre Key
 item.SpectreZone:spectre_ingot=Spectre Ingot
 item.SpectreZone:ectoplasm=Ectoplasm
