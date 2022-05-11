@@ -5,7 +5,7 @@ namespace jasonwynn10\SpectreZone;
 use jasonwynn10\SpectreZone\item\CustomReleasableItem;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
-use pocketmine\event\player\PlayerLoginEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\CreativeInventory;
@@ -183,9 +183,9 @@ final class SpectreZone extends PluginBase {
 		// register events
 		$pluginManager = $server->getPluginManager();
 		$pluginManager->registerEvent(
-			PlayerLoginEvent::class,
+			PlayerJoinEvent::class,
 			\Closure::fromCallable(
-				function(PlayerLoginEvent $event) {
+				function(PlayerJoinEvent $event) {
 					$event->getPlayer()->getNetworkSession()->sendDataPacket(ItemComponentPacket::create(self::$packetEntries));
 				}
 			),
