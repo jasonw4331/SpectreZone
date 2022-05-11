@@ -50,10 +50,10 @@ final class SpectreZone extends PluginBase {
 		$server = $this->getServer();
 
 		// register custom items
-		$this->registerCustomItem($ectoplasm = new Item(new ItemIdentifier(400, 0), "Ectoplasm"), $this->getName());
-		$this->registerCustomItem($spectreIngot = new Item(new ItemIdentifier(401, 0), "Spectre Ingot"), $this->getName());
-		$this->registerCustomItem($spectreKey = new CustomReleasableItem(new ItemIdentifier(402, 0), "Spectre Key",
-			function(Player $player) {
+		$this->registerCustomItem($ectoplasm = new Item(new ItemIdentifier(600, 0), "Ectoplasm"), $this->getName());
+		$this->registerCustomItem($spectreIngot = new Item(new ItemIdentifier(601, 0), "Spectre Ingot"), $this->getName());
+		$this->registerCustomItem($spectreKey = new CustomReleasableItem(new ItemIdentifier(602, 0), "Spectre Key",
+			static function(Player $player) : ItemUseResult {
 				if($player->getWorld() === $this->getServer()->getWorldManager()->getWorldByName('SpectreZone')) {
 					$position = $this->getSavedPosition($player);
 				}else{
