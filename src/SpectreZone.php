@@ -45,6 +45,7 @@ use Webmozart\PathUtil\Path;
 final class SpectreZone extends PluginBase {
 	private static array $packetEntries = [];
 	private static ?ResourcePack $pack = null;
+	/** @var array<int, array<Position|int>> $savedPositions */
 	private array $savedPositions = [];
 	private int $defaultHeight = 4;
 	private int $chunkOffset = 0;
@@ -56,16 +57,18 @@ final class SpectreZone extends PluginBase {
 		$this->registerCustomItem($ectoplasm = new Item(new ItemIdentifier(600, 0), "Ectoplasm"), $this->getName());
 		$this->registerCustomItem($spectreIngot = new Item(new ItemIdentifier(601, 0), "Spectre Ingot"), $this->getName());
 		$this->registerCustomItem($spectreKey = new CustomReleasableItem(new ItemIdentifier(602, 0), "Spectre Key",
-			static function(Player $player) : ItemUseResult {
+			function(Player $player) : ItemUseResult {
 				if($player->getWorld() === $this->getServer()->getWorldManager()->getWorldByName('SpectreZone')) {
-					$position = $this->getSavedPosition($player);
+					[$position, $viewDistance] = $this->getSavedInfo($player);
+					$player->setViewDistance($viewDistance);
 				}else{
-					$this->savePlayerPosition($player);
+					$this->savePlayerInfo($player);
 					$position = $this->getSpectreSpawn($player);
+					$player->setViewDistance(3);
 				}
 				$player->teleport($position);
 
-				return ItemUseResult::NONE(); // TODO: test return ItemUseResult::SUCCESS()
+				return ItemUseResult::NONE(); // leave as none so we don't resync inventory
 			}),
 			$this->getName(),
 			CompoundTag::create()
