@@ -5,7 +5,7 @@ namespace jasonwynn10\SpectreZone;
 use jasonwynn10\SpectreZone\item\CustomReleasableItem;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
-use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\CreativeInventory;
@@ -16,7 +16,9 @@ use pocketmine\item\ItemUseResult;
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\nbt\tag\ListTag;
 use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
 use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\NetworkSession;
@@ -31,6 +33,8 @@ use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ResourcePack;
 use pocketmine\resourcepacks\ZippedResourcePack;
+use pocketmine\world\format\Chunk;
+use pocketmine\world\format\io\data\BaseNbtWorldData;
 use pocketmine\world\generator\GeneratorManager;
 use pocketmine\world\generator\InvalidGeneratorOptionsException;
 use pocketmine\world\Position;
@@ -388,24 +392,82 @@ final class SpectreZone extends PluginBase {
 	public function getSpectreSpawn(Player $player) : Position {
 		$spectreZone = $this->getServer()->getWorldManager()->getWorldByName('SpectreZone');
 		\assert($spectreZone !== null);
+		$worldData = $spectreZone->getProvider()->getWorldData();
 
-		return $player->getPosition(); // TODO: replace placeholder with actual spawn position
+		$ref = new \ReflectionClass(BaseNbtWorldData::class);
+		$prop = $ref->getProperty('compoundTag');
+		$prop->setAccessible(true);
+
+		/** @var CompoundTag $root */
+		$root = $prop->getValue($worldData);
+		/** @var ListTag $tag */
+		$tag = $root->getTag('spawnList') ?? new ListTag([], NBT::TAG_Compound);
+
+		$highestX = 0;
+		$highestZ = 0;
+		/** @var CompoundTag $value */
+		foreach($tag->getValue() as $value) {
+			$chunkX = $value->getInt('chunkX');
+			$chunkZ = $value->getInt('chunkZ');
+			if($value->getString('UUID') === $player->getUniqueId()->toString()) {
+				return new Position(($chunkX << Chunk::COORD_BIT_SIZE) + (Chunk::COORD_BIT_SIZE / 2), 2, ($chunkZ << Chunk::COORD_BIT_SIZE) + (Chunk::COORD_BIT_SIZE / 2), $spectreZone);
+			}
+			if(\abs($chunkX) > \abs($highestX)) {
+				$highestX = $chunkX;
+			}
+			if(\abs($chunkZ) > \abs($highestZ)) {
+				$highestZ = $chunkZ;
+			}
+		}
+
+		$alternator = true;
+		while(!$this->isUsableChunk($highestX, $highestZ)) {
+			if($alternator){
+				if($highestX > 0) {
+					$highestX--;
+				} else {
+					$highestX++;
+				}
+			}else{
+				if($highestZ > 0) {
+					$highestZ--;
+				} else {
+					$highestZ++;
+				}
+			}
+			$alternator = !$alternator;
+		}
+
+		$tag->push(CompoundTag::create()
+			->setString('UUID', $player->getUniqueId()->toString())
+			->setInt('chunkX', $highestX)
+			->setInt('chunkZ', $highestZ)
+		);
+		$root->setTag('spawnList', $tag);
+		$prop->setValue($worldData, $root);
+
+		return new Position(($highestX << Chunk::COORD_BIT_SIZE) + (Chunk::COORD_BIT_SIZE / 2), 2, ($highestZ << Chunk::COORD_BIT_SIZE) + (Chunk::COORD_BIT_SIZE / 2), $spectreZone);
 	}
 
 	private function isUsableChunk(int $chunkX, int $chunkZ) : bool{
 		return $chunkX % (3 + $this->chunkOffset) === 0 and $chunkZ % (3 + $this->chunkOffset) === 0;
 	}
 
-	private function savePlayerPosition(Player $player) : void {
-		$this->savedPositions[$player->getUniqueId()->toString()] = $player->getPosition();
+	private function savePlayerInfo(Player $player) : void {
+		$this->savedPositions[$player->getUniqueId()->toString()] = [$player->getPosition(), $player->getViewDistance()];
 	}
 
-	private function getSavedPosition(Player $player) : Position {
+	/**
+	 * @param Player $player
+	 *
+	 * @return array<Position|int>
+	 */
+	private function getSavedInfo(Player $player) : array {
 		if(isset($this->savedPositions[$player->getUniqueId()->toString()])) {
-			$position = $this->savedPositions[$player->getUniqueId()->toString()];
+			[$position, $viewDistance] = $this->savedPositions[$player->getUniqueId()->toString()];
 			unset($this->savedPositions[$player->getUniqueId()->toString()]);
-			return $position;
+			return [$position, $viewDistance];
 		}
-		return $player->getSpawn(); // return the player's spawn position as a fallback
+		return [$player->getSpawn(), $this->getServer()->getViewDistance()];
 	}
 }
