@@ -183,10 +183,10 @@ final class SpectreZone extends PluginBase {
 		// register events
 		$pluginManager = $server->getPluginManager();
 		$pluginManager->registerEvent(
-			PlayerJoinEvent::class,
+			PlayerCreationEvent::class, // use PlayerCreationEvent because it's the first event fired after the player receives resource packs
 			\Closure::fromCallable(
-				function(PlayerJoinEvent $event) {
-					$event->getPlayer()->getNetworkSession()->sendDataPacket(ItemComponentPacket::create(self::$packetEntries));
+				function(PlayerCreationEvent $event) {
+					$event->getNetworkSession()->sendDataPacket(ItemComponentPacket::create(self::$packetEntries));
 				}
 			),
 			EventPriority::MONITOR,
