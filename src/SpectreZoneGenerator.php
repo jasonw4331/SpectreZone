@@ -14,7 +14,7 @@ use pocketmine\world\generator\Generator;
 final class SpectreZoneGenerator extends Generator{
 
 	protected int $height = 4;
-	protected int $multiplier = 1;
+	protected int $multiplier = 0;
 
 	public function __construct(int $seed, string $preset){
 		parent::__construct($seed, $preset);

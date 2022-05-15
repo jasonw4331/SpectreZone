@@ -47,7 +47,7 @@ final class SpectreZone extends PluginBase {
 	private static ?ResourcePack $pack = null;
 	private array $savedPositions = [];
 	private int $defaultHeight = 4;
-	private int $chunkOffset = 1;
+	private int $chunkOffset = 0;
 
 	public function onEnable() : void {
 		$server = $this->getServer();
