@@ -2,17 +2,18 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
-use jasonwynn10\SpectreZone\item\CustomReleasableItem;
+use jasonwynn10\SpectreZone\item\SpectreKey;
+use pocketmine\color\Color;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
 use pocketmine\event\player\PlayerCreationEvent;
+use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\CreativeInventory;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIdentifier;
-use pocketmine\item\ItemUseResult;
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
@@ -33,10 +34,13 @@ use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ResourcePack;
 use pocketmine\resourcepacks\ZippedResourcePack;
+use pocketmine\scheduler\CancelTaskException;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\format\io\data\BaseNbtWorldData;
 use pocketmine\world\generator\GeneratorManager;
 use pocketmine\world\generator\InvalidGeneratorOptionsException;
+use pocketmine\world\particle\DustParticle;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\world\WorldCreationOptions;
@@ -56,32 +60,23 @@ final class SpectreZone extends PluginBase {
 		// register custom items
 		$this->registerCustomItem($ectoplasm = new Item(new ItemIdentifier(600, 0), "Ectoplasm"), $this->getName());
 		$this->registerCustomItem($spectreIngot = new Item(new ItemIdentifier(601, 0), "Spectre Ingot"), $this->getName());
-		$this->registerCustomItem($spectreKey = new CustomReleasableItem(new ItemIdentifier(602, 0), "Spectre Key",
-			function(Player $player) : ItemUseResult {
-				if($player->getWorld() === $this->getServer()->getWorldManager()->getWorldByName('SpectreZone')) {
-					[$position, $viewDistance] = $this->getSavedInfo($player);
-					$player->setViewDistance($viewDistance);
-				}else{
-					$this->savePlayerInfo($player);
-					$position = $this->getSpectreSpawn($player);
-					$player->setViewDistance(3);
-				}
-				$player->teleport($position);
-
-				return ItemUseResult::NONE(); // leave as none so we don't resync inventory
-			}),
+		$this->registerCustomItem(
+			$spectreKey = new SpectreKey(),
 			$this->getName(),
 			CompoundTag::create()
-				//->setInt("use_duration", 32)
-				//->setInt("use_animation", 0) // TODO: find throw animation
-				->setByte("creative_category", 4) // 1 construction 2 nature 3 equipment 4 items
-				->setByte("allow_off_hand", 0)
-				->setInt("max_stack_size", 1)
+				->setInt("max_stack_size", 1),
+			CompoundTag::create()
+				->setTag('minecraft:projectile', CompoundTag::create())
 				->setTag('minecraft:throwable', CompoundTag::create()
-					->setFloat('min_draw_duration', 5.0) // Only activate key after 5 seconds
-					->setFloat('max_draw_duration', 15.0) // Force key to release after 15 seconds
+					->setByte('do_swing_animation', 0)
+					->setFloat('launch_power_scale', 1.0)
+					->setFloat('max_draw_duration', 15.0)
+					->setFloat('max_launch_power', 30.0)
+					->setFloat('min_draw_duration', 5.0)
+					->setByte('scale_power_by_draw_duration', 1)
 				)
 		);
+		$this->getLogger()->debug('Registered custom items');
 
 		// register custom recipes
 		$craftManager = $server->getCraftingManager();
@@ -130,13 +125,13 @@ final class SpectreZone extends PluginBase {
 				$spectreKey
 			]
 		));
+		$this->getLogger()->debug('Registered custom recipes');
 
 		// TODO: register custom blocks
 
 		// Compile resource pack
-		$packManager = $server->getResourcePackManager();
 		$zip = new \ZipArchive();
-		$zip->open(Path::join($packManager->getPath(), $this->getName().'.mcpack'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+		$zip->open(Path::join($this->getDataFolder(), $this->getName().'.mcpack'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 		foreach($this->getResources() as $resource){
 			if($resource->isFile() and str_contains($resource->getPathname(), 'SpectreZone Pack')){
 				$relativePath = Path::normalize(preg_replace("/.*[\/\\\\]SpectreZone\hPack[\/\\\\].*/U", '', $resource->getPathname()));
@@ -144,9 +139,11 @@ final class SpectreZone extends PluginBase {
 			}
 		}
 		$zip->close();
+		$this->getLogger()->debug('Resource pack compiled');
 
 		// Register resource pack
-		$this->registerResourcePack(self::$pack = new ZippedResourcePack(Path::join($packManager->getPath(), $this->getName().'.mcpack')));
+		$this->registerResourcePack(self::$pack = new ZippedResourcePack(Path::join($this->getDataFolder(), $this->getName().'.mcpack')));
+		$this->getLogger()->debug('Resource pack registered');
 
 		// Register world generator
 		GeneratorManager::getInstance()->addGenerator(
@@ -165,10 +162,12 @@ final class SpectreZone extends PluginBase {
 			),
 			false // There should never be another generator with the same name
 		);
+		$this->getLogger()->debug('World generator registered');
 
 		// Load or generate the SpectreZone dimension
 		$worldManager = $server->getWorldManager();
 		if(!$worldManager->loadWorld('SpectreZone')) {
+			$this->getLogger()->debug('SpectreZone dimension was not loaded. Generating now...');
 			$worldManager->generateWorld(
 				'SpectreZone',
 				WorldCreationOptions::create()
@@ -180,6 +179,7 @@ final class SpectreZone extends PluginBase {
 				false // keep this for NativeDimensions compatibility
 			);
 		}
+		$this->getLogger()->debug('SpectreZone dimension loaded');
 
 		$spectreZone = $worldManager->getWorldByName('SpectreZone');
 		$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: JSON_THROW_ON_ERROR);
@@ -256,6 +256,31 @@ final class SpectreZone extends PluginBase {
 			$this,
 			true // doesn't really matter because event cannot be cancelled
 		);
+		$pluginManager->registerEvent(
+			PlayerItemUseEvent::class,
+			\Closure::fromCallable(
+				function(PlayerItemUseEvent $event) {
+					$player = $event->getPlayer();
+					if($event->getItem() instanceof SpectreKey and !$player->isUsingItem()) {
+						$this->getScheduler()->scheduleRepeatingTask(new ClosureTask(
+							\Closure::fromCallable(
+								function() use ($player) {
+									if($player->getInventory()->getItemInHand() instanceof SpectreKey and $player->isUsingItem()) {
+										$this->spawnParticles($player->getPosition());
+									}else{
+										throw new CancelTaskException();
+									}
+								}
+							)
+						), 1);
+					}
+				}
+			),
+			EventPriority::MONITOR,
+			$this,
+			false // Don't waste time on cancelled events
+		);
+		$this->getLogger()->debug('Event listeners registered');
 	}
 
 	public function onDisable() : void {
@@ -280,10 +305,10 @@ final class SpectreZone extends PluginBase {
 			unset($currentUUIDPacks[strtolower($pack->getPackId())]);
 			$property->setValue($manager, $currentUUIDPacks);
 		}
-		unlink(Path::join($manager->getPath(), $this->getName().'.mcpack'));
+		unlink(Path::join($this->getDataFolder(), $this->getName().'.mcpack'));
 	}
 
-	private function registerCustomItem(Item $item, string $namespace, ?CompoundTag $propertiesTag = null): void{
+	private function registerCustomItem(Item $item, string $namespace, ?CompoundTag $propertiesTag = null, ?CompoundTag $componentTag = null): void{
 		$itemTranslator = ItemTranslator::getInstance();
 
 		// Get the current net id map information from the core
@@ -329,29 +354,18 @@ final class SpectreZone extends PluginBase {
 			new CacheableNbt(CompoundTag::create()
 				->setTag("components", CompoundTag::create()
 					->setTag("item_properties", CompoundTag::create()
-						->setInt("use_duration", 32)
-						->setInt("use_animation", 0) // 0 none 1 food 2 potion
-						->setByte("allow_off_hand", 1)
-						->setByte("can_destroy_in_creative", 1)
-						->setByte("creative_category", 4) // 1 construction 2 nature 3 equipment 4 items
-						->setByte("hand_equipped", 1)
-						->setInt("max_stack_size", 64)
-						->setFloat("mining_speed", 1)
-						->setTag("minecraft:icon", CompoundTag::create()
-							->setString("texture", $simpleName)
-							->setString("legacy_id", $fullName)
+						->setString("creative_group", 'Items')
+						->setByte('creative_category', 4)
+						->setInt('max_stack_size', 64)
+						->setTag('minecraft:icon', CompoundTag::create()
+							->setString('texture', $simpleName)
 						)
 						->merge($propertiesTag ?? CompoundTag::create())
 					)
-				)
-				->setShort("minecraft:identifier", $runtimeId)
-				->setTag("minecraft:display_name", CompoundTag::create()
-					->setString("value", $item->getVanillaName())
-				)
-				->setTag("minecraft:on_use", CompoundTag::create()
-					->setByte("on_use", 1)
-				)->setTag("minecraft:on_use_on", CompoundTag::create()
-					->setByte("on_use_on", 1)
+					->setTag('minecraft:display_name', CompoundTag::create()
+						->setString('value', $item->getName())
+					)
+					->merge($componentTag ?? CompoundTag::create())
 				)
 			)
 		);
@@ -456,7 +470,7 @@ final class SpectreZone extends PluginBase {
 		return $chunkX % (3 + $this->chunkOffset) === 0 and $chunkZ % (3 + $this->chunkOffset) === 0;
 	}
 
-	private function savePlayerInfo(Player $player) : void {
+	public function savePlayerInfo(Player $player) : void {
 		$this->savedPositions[$player->getUniqueId()->toString()] = [$player->getPosition(), $player->getViewDistance()];
 	}
 
@@ -465,12 +479,20 @@ final class SpectreZone extends PluginBase {
 	 *
 	 * @return array<Position|int>
 	 */
-	private function getSavedInfo(Player $player) : array {
+	public function getSavedInfo(Player $player) : array {
 		if(isset($this->savedPositions[$player->getUniqueId()->toString()])) {
 			[$position, $viewDistance] = $this->savedPositions[$player->getUniqueId()->toString()];
 			unset($this->savedPositions[$player->getUniqueId()->toString()]);
 			return [$position, $viewDistance];
 		}
 		return [$player->getSpawn(), $this->getServer()->getViewDistance()];
+	}
+
+	private function spawnParticles(Position $position){
+
+		$xOffset = lcg_value() > 0.5 ? lcg_value() : -lcg_value();
+		$zOffset = lcg_value() > 0.5 ? lcg_value() : -lcg_value();
+
+		$position->getWorld()->addParticle($position->add($xOffset, 1, $zOffset), new DustParticle(new Color(68, 188, 255)));
 	}
 }
