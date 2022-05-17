@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
+use customies\block\CustomiesBlockFactory;
 use pocketmine\block\Block;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\VanillaBlocks;
@@ -26,18 +27,30 @@ final class SpectreZoneGenerator extends Generator{
 	public function generateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void{
 		$chunk = $world->getChunk($chunkX, $chunkZ);
 
-		$filledSubChunk = new PalettedBlockArray(BlockLegacyIds::BEDROCK << Block::INTERNAL_METADATA_BITS); // TODO: change to custom block
+		$block = CustomiesBlockFactory::getInstance()->get('spectrezone:spectre_block');
+		$filledSubChunk = new PalettedBlockArray($block->getFullId());
 
 		for($y = Chunk::MIN_SUBCHUNK_INDEX; $y <= Chunk::MAX_SUBCHUNK_INDEX; ++$y){
-			$chunk->setSubChunk($y, new SubChunk($y, [$filledSubChunk]));
+			$chunk->setSubChunk($y, new SubChunk(BlockLegacyIds::AIR << Block::INTERNAL_METADATA_BITS, [$filledSubChunk]));
 		}
 
 		if($this->isChunkValid($chunkX, $chunkZ)) {
-			for($y = 1; $y <= $this->height + 1; ++$y){
-				for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
-					for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
-						$chunk->setFullBlock($x, $y, $z, VanillaBlocks::AIR()->getFullId());
-						// TODO: add 4 rotated custom blocks to floor center
+			$block = CustomiesBlockFactory::getInstance()->get('spectrezone:spectre_core');
+
+			$center = Chunk::EDGE_LENGTH / 2;
+
+			for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
+				for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
+					for($y = 0; $y < $world->getMaxY(); ++$y){
+						if($y > 0 and $y <= $this->height) {
+							$chunk->setFullBlock($x, $y, $z, VanillaBlocks::AIR()->getFullId());
+						}elseif($x === $center or
+							$x === $center + 1 or
+							$z === $center or
+							$z === $center + 1
+						) {
+							$chunk->setFullBlock($x, $y, $z, $block->getFullId());
+						}
 					}
 				}
 			}

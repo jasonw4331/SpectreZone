@@ -2,34 +2,26 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
+use customies\block\CustomiesBlockFactory;
+use customies\item\CustomiesItemFactory;
+use jasonwynn10\SpectreZone\block\SpectreBlock;
+use jasonwynn10\SpectreZone\block\SpectreCoreBlock;
+use jasonwynn10\SpectreZone\item\Ectoplasm;
+use jasonwynn10\SpectreZone\item\SpectreIngot;
 use jasonwynn10\SpectreZone\item\SpectreKey;
+use pocketmine\block\BlockBreakInfo;
 use pocketmine\color\Color;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
-use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\CreativeInventory;
-use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
-use pocketmine\item\ItemIdentifier;
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\ListTag;
-use pocketmine\network\mcpe\convert\GlobalItemTypeDictionary;
-use pocketmine\network\mcpe\convert\ItemTranslator;
-use pocketmine\network\mcpe\NetworkSession;
-use pocketmine\network\mcpe\protocol\ItemComponentPacket;
-use pocketmine\network\mcpe\protocol\ResourcePackStackPacket;
-use pocketmine\network\mcpe\protocol\StartGamePacket;
-use pocketmine\network\mcpe\protocol\types\CacheableNbt;
-use pocketmine\network\mcpe\protocol\types\Experiments;
-use pocketmine\network\mcpe\protocol\types\ItemComponentPacketEntry;
-use pocketmine\network\mcpe\protocol\types\ItemTypeEntry;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ResourcePack;
@@ -47,7 +39,6 @@ use pocketmine\world\WorldCreationOptions;
 use Webmozart\PathUtil\Path;
 
 final class SpectreZone extends PluginBase {
-	private static array $packetEntries = [];
 	private static ?ResourcePack $pack = null;
 	/** @var array<int, array<Position|int>> $savedPositions */
 	private array $savedPositions = [];
@@ -58,28 +49,25 @@ final class SpectreZone extends PluginBase {
 		$server = $this->getServer();
 
 		// register custom items
-		$this->registerCustomItem($ectoplasm = new Item(new ItemIdentifier(600, 0), "Ectoplasm"), $this->getName());
-		$this->registerCustomItem($spectreIngot = new Item(new ItemIdentifier(601, 0), "Spectre Ingot"), $this->getName());
-		$this->registerCustomItem(
-			$spectreKey = new SpectreKey(),
-			$this->getName(),
-			CompoundTag::create()
-				->setInt("max_stack_size", 1),
-			CompoundTag::create()
-				->setTag('minecraft:projectile', CompoundTag::create())
-				->setTag('minecraft:throwable', CompoundTag::create()
-					->setByte('do_swing_animation', 0)
-					->setFloat('launch_power_scale', 1.0)
-					->setFloat('max_draw_duration', 15.0)
-					->setFloat('max_launch_power', 30.0)
-					->setFloat('min_draw_duration', 5.0)
-					->setByte('scale_power_by_draw_duration', 1)
-				)
-		);
+		$itemFactory = CustomiesItemFactory::getInstance();
+		$namespace = mb_strtolower($this->getName()).':';
+
+		foreach([
+			'ectoplasm' => Ectoplasm::class,
+			'spectre_ingot' => SpectreIngot::class,
+			'spectre_key' => SpectreKey::class
+		] as $itemName => $class) {
+			$itemFactory->registerItem($class, $namespace.$itemName, ucwords(str_replace('_', ' ', $itemName)));
+			$itemInstance = $itemFactory->get($namespace.$itemName);
+			StringToItemParser::getInstance()->register($itemName, static fn(string $input) => $itemInstance);
+			CreativeInventory::getInstance()->add($itemInstance);
+		}
+
 		$this->getLogger()->debug('Registered custom items');
 
 		// register custom recipes
 		$craftManager = $server->getCraftingManager();
+
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
 			[
 				' A ',
@@ -89,13 +77,12 @@ final class SpectreZone extends PluginBase {
 			[
 				'A' => VanillaItems::LAPIS_LAZULI(),
 				'B' => VanillaItems::GOLD_INGOT(),
-				'C' => $ectoplasm
+				'C' => $itemFactory->get($namespace.'ectoplasm')
 			],
 			[
-				$spectreIngot
+				$itemFactory->get($namespace.'spectre_ingot')
 			]
 		));
-		$countedSpectreIngot = (clone $spectreIngot)->setCount(9);
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
 			[
 				'CAC',
@@ -105,10 +92,10 @@ final class SpectreZone extends PluginBase {
 			[
 				'A' => VanillaItems::LAPIS_LAZULI(),
 				'B' => VanillaItems::GOLD_INGOT(),
-				'C' => $ectoplasm
+				'C' => $itemFactory->get($namespace.'ectoplasm')
 			],
 			[
-				$countedSpectreIngot
+				$itemFactory->get($namespace.'spectre_ingot', 9)
 			]
 		));
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
@@ -118,16 +105,29 @@ final class SpectreZone extends PluginBase {
 				'  A'
 			],
 			[
-				'A' => $spectreIngot,
+				'A' => $itemFactory->get($namespace.'spectre_ingot'),
 				'B' => VanillaItems::ENDER_PEARL()
 			],
 			[
-				$spectreKey
+				$itemFactory->get($namespace.'spectre_key')
 			]
 		));
+
 		$this->getLogger()->debug('Registered custom recipes');
 
-		// TODO: register custom blocks
+		// register custom blocks
+		$blockFactory = CustomiesBlockFactory::getInstance();
+
+		foreach([
+			'spectre_block' => SpectreBlock::class,
+			'spectre_core' => SpectreCoreBlock::class
+		] as $blockName => $class) {
+			$blockFactory->registerBlock($class, $namespace.$blockName, ucwords(str_replace('_', ' ', $blockName)), BlockBreakInfo::indestructible());
+			$blockInstance = $blockFactory->get($namespace.$blockName);
+			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
+		}
+
+		$this->getLogger()->debug('Registered custom blocks');
 
 		// Compile resource pack
 		$zip = new \ZipArchive();
@@ -154,7 +154,7 @@ final class SpectreZone extends PluginBase {
 					$parsedOptions = \json_decode($generatorOptions, true, flags: JSON_THROW_ON_ERROR);
 					if(!is_int($parsedOptions['Chunk Offset']) or $parsedOptions['Chunk Offset'] < 0) {
 						return new InvalidGeneratorOptionsException();
-					}elseif(!is_int($parsedOptions['Default Height']) or $parsedOptions['Default Height'] < 2) {
+					}elseif(!is_int($parsedOptions['Default Height']) or $parsedOptions['Default Height'] < 2 or $parsedOptions['Default Height'] > World::Y_MAX) {
 						return new InvalidGeneratorOptionsException();
 					}
 					return null;
@@ -185,61 +185,11 @@ final class SpectreZone extends PluginBase {
 		$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: JSON_THROW_ON_ERROR);
 
 		$this->defaultHeight = (int) \abs($options["Default Height"] ?? 4);
-		$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 1);
+		$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 0);
 
 		// register events
 		$pluginManager = $server->getPluginManager();
-		$pluginManager->registerEvent(
-			PlayerCreationEvent::class, // use PlayerCreationEvent because it's the first event fired after the player receives resource packs
-			\Closure::fromCallable(
-				function(PlayerCreationEvent $event) {
-					$event->getNetworkSession()->sendDataPacket(ItemComponentPacket::create(self::$packetEntries));
-				}
-			),
-			EventPriority::MONITOR,
-			$this
-		);
-		$pluginManager->registerEvent(
-			DataPacketSendEvent::class,
-			\Closure::fromCallable(
-				function(DataPacketSendEvent $event) {
-					$packets = $event->getPackets();
-					foreach($packets as $packet){
-						if($packet instanceof StartGamePacket){
-							$packet->levelSettings->experiments = new Experiments([
-								"data_driven_items" => true,
-								'holiday_creator_features' => true,
-								'upcoming_creator_features' => true,
-							], true);
-						}elseif($packet instanceof ResourcePackStackPacket){
-							$packet->experiments = new Experiments([
-								"data_driven_items" => true,
-								'holiday_creator_features' => true,
-								'upcoming_creator_features' => true,
-							], true);
-						}elseif($packet instanceof ItemComponentPacket and
-							count(array_filter($packet->getEntries(),
-								function(ItemComponentPacketEntry $entry) {
-									return str_contains($entry->getName(), mb_strtolower($this->getName()));
-								}
-							)) < 3
-						) {
-							$event->cancel();
 
-							$entries = $packet->getEntries();
-							array_push($entries, ...self::$packetEntries);
-							$this->getServer()->broadcastPackets(
-								array_map(fn(NetworkSession $session) => $session->getPlayer(), $event->getTargets()),
-								[ItemComponentPacket::create($entries)]
-							);
-						}
-					}
-				}
-			),
-			EventPriority::LOWEST,
-			$this,
-			false // Don't waste time on cancelled events
-		);
 		$pluginManager->registerEvent(
 			PlayerQuitEvent::class,
 			\Closure::fromCallable(
@@ -280,6 +230,7 @@ final class SpectreZone extends PluginBase {
 			$this,
 			false // Don't waste time on cancelled events
 		);
+
 		$this->getLogger()->debug('Event listeners registered');
 	}
 
@@ -306,74 +257,6 @@ final class SpectreZone extends PluginBase {
 			$property->setValue($manager, $currentUUIDPacks);
 		}
 		unlink(Path::join($this->getDataFolder(), $this->getName().'.mcpack'));
-	}
-
-	private function registerCustomItem(Item $item, string $namespace, ?CompoundTag $propertiesTag = null, ?CompoundTag $componentTag = null): void{
-		$itemTranslator = ItemTranslator::getInstance();
-
-		// Get the current net id map information from the core
-		$ref = new \ReflectionClass($itemTranslator);
-		$coreToNetMap = $ref->getProperty("simpleCoreToNetMapping");
-		$netToCoreMap = $ref->getProperty("simpleNetToCoreMapping");
-		$coreToNetMap->setAccessible(true);
-		$netToCoreMap->setAccessible(true);
-
-		$coreToNetValues = $coreToNetMap->getValue($itemTranslator);
-		$netToCoreValues = $netToCoreMap->getValue($itemTranslator);
-
-		$legacyId = $item->getId();
-		$runtimeId = $legacyId + ($legacyId > 0 ? 5000 : -5000);
-
-		// Add the new custom item to the core mapping
-		$coreToNetValues[$legacyId] = $runtimeId;
-		$netToCoreValues[$runtimeId] = $legacyId;
-
-		// Save the new core mapping
-		$coreToNetMap->setValue($itemTranslator, $coreToNetValues);
-		$netToCoreMap->setValue($itemTranslator, $netToCoreValues);
-
-		$typeDictionary = GlobalItemTypeDictionary::getInstance()->getDictionary();
-
-		// Get the current item type map information from the core
-		$ref_1 = new \ReflectionClass($typeDictionary);
-		$itemTypeMap = $ref_1->getProperty("itemTypes");
-		$itemTypeMap->setAccessible(true);
-
-		$itemTypeEntries = $itemTypeMap->getValue($typeDictionary);
-
-		$simpleName = mb_strtolower(str_replace(' ', '_', $item->getVanillaName()));
-		$fullName = mb_strtolower($namespace).':'.$simpleName;
-
-		// Add the new custom item's type entry to the type map
-		$itemTypeEntries[] = new ItemTypeEntry($fullName, $runtimeId, true);
-
-		// Save the new type map
-		$itemTypeMap->setValue($typeDictionary, $itemTypeEntries);
-
-		self::$packetEntries[] = new ItemComponentPacketEntry($fullName,
-			new CacheableNbt(CompoundTag::create()
-				->setTag("components", CompoundTag::create()
-					->setTag("item_properties", CompoundTag::create()
-						->setString("creative_group", 'Items')
-						->setByte('creative_category', 4)
-						->setInt('max_stack_size', 64)
-						->setTag('minecraft:icon', CompoundTag::create()
-							->setString('texture', $simpleName)
-						)
-						->merge($propertiesTag ?? CompoundTag::create())
-					)
-					->setTag('minecraft:display_name', CompoundTag::create()
-						->setString('value', $item->getName())
-					)
-					->merge($componentTag ?? CompoundTag::create())
-				)
-			)
-		);
-
-		ItemFactory::getInstance()->register($item, false); // Item should be unique, so we don't override here
-		CreativeInventory::getInstance()->add($item);
-		$cloneItem = clone $item;
-		StringToItemParser::getInstance()->register($item->getVanillaName(), fn() => $cloneItem);
 	}
 
 	private function registerResourcePack(ResourcePack $pack){
