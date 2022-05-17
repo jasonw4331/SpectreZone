@@ -29,7 +29,7 @@ class SpectreCoreBlock extends Bedrock{
 
 		// find lowest block in chunk above y = 2
 		for($y = 2; $y < $position->getWorld()->getMaxY() - 1; ++$y){
-			if($world->getBlockAt(0, $y, 0) instanceof SpectreBlock) {
+			if($world->getBlockAt($cornerX, $y, $cornerZ) instanceof SpectreBlock) {
 				// remove all blocks at this height
 				for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
 					for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
