@@ -12,11 +12,12 @@ SpectreZone is a plugin based on a part of the Java Minecraft [Random Things Mod
   * Ectoplasm
   * Spectre Ingot
   * Spectre Key
-
-# Future Additions
 * 2 Custom Blocks
   * Spectre Dimension Wall Blocks
   * Dimension Growth Blocks
+* 3 new crafting recipes for added items
+
+# Future Additions
 * Spectre Mobs
 * No others planned. Leave requests in the reviews on [Poggit](https://poggit.pmmp.io/p/SpectreZone).
 
