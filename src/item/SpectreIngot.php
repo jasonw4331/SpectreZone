@@ -10,8 +10,8 @@ use pocketmine\item\ItemIdentifier;
 class SpectreIngot extends Item implements ItemComponents{
 	use ItemComponentsTrait;
 
-	public function __construct(){
-		parent::__construct(new ItemIdentifier(601, 0), 'Spectre Ingot');
+	public function __construct(ItemIdentifier $identifier, string $name = 'Spectre Ingot'){
+		parent::__construct($identifier, $name);
 		$this->initComponent('spectre_ingot', 64);
 		$this->addProperty('creative_group', 'Items');
 		$this->addProperty('creative_category', 4);

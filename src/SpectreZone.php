@@ -164,28 +164,32 @@ final class SpectreZone extends PluginBase {
 		);
 		$this->getLogger()->debug('World generator registered');
 
-		// Load or generate the SpectreZone dimension
-		$worldManager = $server->getWorldManager();
-		if(!$worldManager->loadWorld('SpectreZone')) {
-			$this->getLogger()->debug('SpectreZone dimension was not loaded. Generating now...');
-			$worldManager->generateWorld(
-				'SpectreZone',
-				WorldCreationOptions::create()
-					->setGeneratorClass(SpectreZoneGenerator::class)
-					->setDifficulty(World::DIFFICULTY_PEACEFUL)
-					->setSpawnPosition(new Vector3(0.5, 1, 0.5))
-					->setGeneratorOptions(\json_encode($this->getConfig()->getAll(), JSON_THROW_ON_ERROR)),
-				true,
-				false // keep this for NativeDimensions compatibility
-			);
-		}
-		$this->getLogger()->debug('SpectreZone dimension loaded');
+		// Load or generate the SpectreZone dimension 1 tick after blocks are registered on the generation thread
+		$this->getScheduler()->scheduleTask(new ClosureTask(\Closure::fromCallable(
+			function() use ($server) {
+				$worldManager = $server->getWorldManager();
+				if(!$worldManager->loadWorld('SpectreZone')) {
+					$this->getLogger()->debug('SpectreZone dimension was not loaded. Generating now...');
+					$worldManager->generateWorld(
+						'SpectreZone',
+						WorldCreationOptions::create()
+							->setGeneratorClass(SpectreZoneGenerator::class)
+							->setDifficulty(World::DIFFICULTY_PEACEFUL)
+							->setSpawnPosition(new Vector3(0.5, 1, 0.5))
+							->setGeneratorOptions(\json_encode($this->getConfig()->getAll(), JSON_THROW_ON_ERROR)),
+						true,
+						false // keep this for NativeDimensions compatibility
+					);
+				}
+				$this->getLogger()->debug('SpectreZone dimension loaded');
 
-		$spectreZone = $worldManager->getWorldByName('SpectreZone');
-		$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: JSON_THROW_ON_ERROR);
+				$spectreZone = $worldManager->getWorldByName('SpectreZone');
+				$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: JSON_THROW_ON_ERROR);
 
-		$this->defaultHeight = (int) \abs($options["Default Height"] ?? 4);
-		$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 0);
+				$this->defaultHeight = (int) \abs($options["Default Height"] ?? 4);
+				$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 0);
+			}
+		)));
 
 		// register events
 		$pluginManager = $server->getPluginManager();

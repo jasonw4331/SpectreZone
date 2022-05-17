@@ -16,8 +16,8 @@ use pocketmine\Server;
 class SpectreKey extends Item implements Releasable, ItemComponents{
 	use ItemComponentsTrait;
 
-	public function __construct(){
-		parent::__construct(new ItemIdentifier(602, 0), 'Spectre Key');
+	public function __construct(ItemIdentifier $identifier, string $name = 'Spectre Key'){
+		parent::__construct($identifier, $name);
 		$this->initComponent('spectre_key', 1);
 		$this->addProperty('creative_group', 'Items');
 		$this->addProperty('creative_category', 4);
