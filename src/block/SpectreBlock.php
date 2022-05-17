@@ -6,6 +6,6 @@ use pocketmine\block\Bedrock;
 
 class SpectreBlock extends Bedrock{
 	public function getLightLevel() : int{
-		return 15;
+		return 13;
 	}
 }
