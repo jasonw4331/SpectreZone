@@ -7,6 +7,7 @@ use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\world\ChunkManager;
 use pocketmine\world\format\Chunk;
+use pocketmine\world\format\LightArray;
 use pocketmine\world\format\PalettedBlockArray;
 use pocketmine\world\format\SubChunk;
 use pocketmine\world\generator\Generator;
@@ -28,12 +29,10 @@ final class SpectreZoneGenerator extends Generator{
 		$chunk = $world->getChunk($chunkX, $chunkZ);
 
 		$blockFactory = CustomiesBlockFactory::getInstance();
-
 		$block = $blockFactory->get('spectrezone:spectre_block');
-		$filledSubChunk = new PalettedBlockArray($block->getFullId());
 
-		for($y = Chunk::MIN_SUBCHUNK_INDEX; $y <= Chunk::MAX_SUBCHUNK_INDEX; ++$y){
-			$chunk->setSubChunk($y, new SubChunk(BlockLegacyIds::AIR << Block::INTERNAL_METADATA_BITS, [$filledSubChunk]));
+		for($subChunkY = Chunk::MIN_SUBCHUNK_INDEX; $subChunkY <= Chunk::MAX_SUBCHUNK_INDEX; ++$subChunkY){
+			$chunk->setSubChunk($subChunkY, new SubChunk(BlockLegacyIds::AIR << Block::INTERNAL_METADATA_BITS, [new PalettedBlockArray($block->getFullId())], LightArray::fill(15), LightArray::fill(15)));
 		}
 
 		if($this->isChunkValid($chunkX, $chunkZ)) {
