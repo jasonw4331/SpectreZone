@@ -19,6 +19,7 @@ SpectreZone is a plugin based on a part of the Java Minecraft [Random Things Mod
 
 # Future Additions
 * Spectre Mobs
+* Custom Spectral Biome
 * No others planned. Leave requests in the reviews on [Poggit](https://poggit.pmmp.io/p/SpectreZone).
 
 # About
