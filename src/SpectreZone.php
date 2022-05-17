@@ -26,6 +26,7 @@ use pocketmine\resourcepacks\ResourcePack;
 use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\scheduler\CancelTaskException;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\utils\Filesystem;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\format\io\data\BaseNbtWorldData;
 use pocketmine\world\generator\GeneratorManager;
@@ -136,10 +137,12 @@ final class SpectreZone extends PluginBase {
 		foreach($this->getResources() as $resource){
 			if($resource->isFile() and str_contains($resource->getPathname(), 'SpectreZone Pack')){
 				$relativePath = Path::normalize(preg_replace("/.*[\/\\\\]SpectreZone\hPack[\/\\\\].*/U", '', $resource->getPathname()));
-				$zip->addFile(Path::normalize($resource->getPathname()), $relativePath);
+				$this->saveResource(Path::join('SpectreZone Pack', $relativePath), false);
+				$zip->addFile(Path::join($this->getDataFolder(), 'SpectreZone Pack', $relativePath), $relativePath);
 			}
 		}
 		$zip->close();
+		Filesystem::recursiveUnlink(Path::join($this->getDataFolder().'SpectreZone Pack'));
 		$this->getLogger()->debug('Resource pack compiled');
 
 		// Register resource pack
