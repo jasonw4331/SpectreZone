@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone\block;
 
-use customies\block\CustomiesBlockFactory;
 use jasonwynn10\SpectreZone\item\Ectoplasm;
 use pocketmine\block\Bedrock;
 use pocketmine\block\VanillaBlocks;
@@ -10,6 +9,7 @@ use pocketmine\item\Item;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\format\Chunk;
+use twistedasylummc\customies\block\CustomiesBlockFactory;
 
 class SpectreCoreBlock extends Bedrock{
 	public function getLightLevel() : int{

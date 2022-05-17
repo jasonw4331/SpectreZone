@@ -2,8 +2,6 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
-use customies\block\CustomiesBlockFactory;
-use customies\item\CustomiesItemFactory;
 use jasonwynn10\SpectreZone\block\SpectreBlock;
 use jasonwynn10\SpectreZone\block\SpectreCoreBlock;
 use jasonwynn10\SpectreZone\item\Ectoplasm;
@@ -11,13 +9,11 @@ use jasonwynn10\SpectreZone\item\SpectreIngot;
 use jasonwynn10\SpectreZone\item\SpectreKey;
 use pocketmine\block\BlockBreakInfo;
 use pocketmine\color\Color;
-use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\inventory\CreativeInventory;
 use pocketmine\item\StringToItemParser;
-use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
 use pocketmine\nbt\tag\CompoundTag;
@@ -36,6 +32,8 @@ use pocketmine\world\particle\DustParticle;
 use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\world\WorldCreationOptions;
+use twistedasylummc\customies\block\CustomiesBlockFactory;
+use twistedasylummc\customies\item\CustomiesItemFactory;
 use Webmozart\PathUtil\Path;
 
 final class SpectreZone extends PluginBase {

@@ -2,8 +2,6 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone\item;
 
-use customies\item\ItemComponents;
-use customies\item\ItemComponentsTrait;
 use jasonwynn10\SpectreZone\SpectreZone;
 use pocketmine\item\Item;
 use pocketmine\item\ItemIdentifier;
@@ -12,6 +10,8 @@ use pocketmine\item\Releasable;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
 use pocketmine\Server;
+use twistedasylummc\customies\item\ItemComponents;
+use twistedasylummc\customies\item\ItemComponentsTrait;
 
 class SpectreKey extends Item implements Releasable, ItemComponents{
 	use ItemComponentsTrait;

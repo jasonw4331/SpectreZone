@@ -2,10 +2,10 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone\item;
 
-use customies\item\ItemComponents;
-use customies\item\ItemComponentsTrait;
 use pocketmine\item\Item;
 use pocketmine\item\ItemIdentifier;
+use twistedasylummc\customies\item\ItemComponents;
+use twistedasylummc\customies\item\ItemComponentsTrait;
 
 class Ectoplasm extends Item implements ItemComponents{
 	use ItemComponentsTrait;

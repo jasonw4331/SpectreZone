@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
-use customies\block\CustomiesBlockFactory;
 use pocketmine\block\Block;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\VanillaBlocks;
@@ -11,6 +10,7 @@ use pocketmine\world\format\Chunk;
 use pocketmine\world\format\PalettedBlockArray;
 use pocketmine\world\format\SubChunk;
 use pocketmine\world\generator\Generator;
+use twistedasylummc\customies\block\CustomiesBlockFactory;
 
 final class SpectreZoneGenerator extends Generator{
 
