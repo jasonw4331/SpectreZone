@@ -55,7 +55,7 @@ class SpectreKey extends Item implements Releasable, ItemComponents{
 	 * Returns the number of ticks a player must wait before activating this item again.
 	 */
 	public function getCooldownTicks() : int{
-		return 20 * 5; // 5 second hold for particles
+		return 20 * 2; // 2 second hold for particles
 	}
 
 	public function canStartUsingItem(Player $player) : bool{
