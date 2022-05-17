@@ -257,8 +257,8 @@ final class SpectreZone extends PluginBase {
 		$property = $reflection->getProperty("uuidList");
 		$property->setAccessible(true);
 		$currentUUIDPacks = $property->getValue($manager);
-		if(isset($currentResourcePacks[strtolower($pack->getPackId())])) {
-			unset($currentUUIDPacks[strtolower($pack->getPackId())]);
+		if(isset($currentResourcePacks[mb_strtolower($pack->getPackId())])) {
+			unset($currentUUIDPacks[mb_strtolower($pack->getPackId())]);
 			$property->setValue($manager, $currentUUIDPacks);
 		}
 		$this->getLogger()->debug('Resource pack unregistered');
@@ -281,7 +281,7 @@ final class SpectreZone extends PluginBase {
 		$property = $reflection->getProperty("uuidList");
 		$property->setAccessible(true);
 		$currentUUIDPacks = $property->getValue($manager);
-		$currentUUIDPacks[strtolower($pack->getPackId())] = $pack;
+		$currentUUIDPacks[mb_strtolower($pack->getPackId())] = $pack;
 		$property->setValue($manager, $currentUUIDPacks);
 
 		$property = $reflection->getProperty("serverForceResources");
