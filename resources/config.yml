@@ -6,5 +6,9 @@
  #     #  #       #       #    #    #    #   #   #        #       #    #  #   ##  #
   #####   #       ######   ####     #    #    #  ######  #######   ####   #    #  ######
 #--------------------------------------------------------------------------------------------------
+# How many chunks should be filled between SpectreZone rooms
+# Value must be 0 or higher
 Chunk Offset: 0
+# What is the default height of the room
+# Value must be in range of 2 to 255
 Default Height: 4
