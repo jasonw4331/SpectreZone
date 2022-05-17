@@ -40,15 +40,15 @@ final class SpectreZoneGenerator extends Generator{
 
 			$center = Chunk::EDGE_LENGTH / 2;
 
-			for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
-				for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
-					for($y = 0; $y < $world->getMaxY(); ++$y){
-						if($y > 0 and $y <= $this->height) {
+			for($y = $world->getMinY(); $y < $world->getMaxY(); ++$y){
+				for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
+					for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
+						if($y > $world->getMinY() and $y <= $world->getMinY() + $this->height) {
 							$chunk->setFullBlock($x, $y, $z, VanillaBlocks::AIR()->getFullId());
-						}elseif($x === $center or
-							$x === $center + 1 or
-							$z === $center or
-							$z === $center + 1
+						}elseif(($x === $center or
+							$x === $center + 1) and
+							($z === $center or
+							$z === $center + 1)
 						) {
 							$chunk->setFullBlock($x, $y, $z, $block->getFullId());
 						}
