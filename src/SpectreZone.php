@@ -260,7 +260,10 @@ final class SpectreZone extends PluginBase {
 			unset($currentUUIDPacks[strtolower($pack->getPackId())]);
 			$property->setValue($manager, $currentUUIDPacks);
 		}
+		$this->getLogger()->debug('Resource pack unregistered');
+
 		unlink(Path::join($this->getDataFolder(), $this->getName().'.mcpack'));
+		$this->getLogger()->debug('Resource pack file deleted');
 	}
 
 	private function registerResourcePack(ResourcePack $pack){
