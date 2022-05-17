@@ -27,7 +27,9 @@ final class SpectreZoneGenerator extends Generator{
 	public function generateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void{
 		$chunk = $world->getChunk($chunkX, $chunkZ);
 
-		$block = CustomiesBlockFactory::getInstance()->get('spectrezone:spectre_block');
+		$blockFactory = CustomiesBlockFactory::getInstance();
+
+		$block = $blockFactory->get('spectrezone:spectre_block');
 		$filledSubChunk = new PalettedBlockArray($block->getFullId());
 
 		for($y = Chunk::MIN_SUBCHUNK_INDEX; $y <= Chunk::MAX_SUBCHUNK_INDEX; ++$y){
@@ -35,7 +37,7 @@ final class SpectreZoneGenerator extends Generator{
 		}
 
 		if($this->isChunkValid($chunkX, $chunkZ)) {
-			$block = CustomiesBlockFactory::getInstance()->get('spectrezone:spectre_core');
+			$block = $blockFactory->get('spectrezone:spectre_core');
 
 			$center = Chunk::EDGE_LENGTH / 2;
 
