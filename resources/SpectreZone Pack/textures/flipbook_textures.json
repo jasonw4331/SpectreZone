@@ -1,0 +1,10 @@
+[
+	{
+		"flipbook_texture": "textures/block/spectre_block",
+		"atlas_tile": "spectre_block"
+	},
+	{
+		"flipbook_texture": "textures/block/spectre_core",
+		"atlas_tile": "spectre_core"
+	}
+]

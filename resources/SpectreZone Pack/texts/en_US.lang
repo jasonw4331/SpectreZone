@@ -1,5 +1,5 @@
-tile.spectrezone:spectre_block=Spectre Block
-tile.spectrezone:spectre_core=Spectre Core
+tile.spectrezone:spectre_block.name=Spectre Block
+tile.spectrezone:spectre_core.name=Spectre Core
 item.spectrezone:spectre_key=Spectre Key
 item.spectrezone:spectre_ingot=Spectre Ingot
 item.spectrezone:ectoplasm=Ectoplasm

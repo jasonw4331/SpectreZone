@@ -1,14 +1,14 @@
 {
-	"num_mip_levels": 4,
-	"padding": 8,
+	"num_mip_levels": 0,
+	"padding": 0,
 	"resource_pack_name": "spectrezone",
 	"texture_name": "atlas.terrain",
 	"texture_data": {
 		"spectre_block": {
-			"textures": "textures/blocks/spectre_block"
+			"textures": "textures/block/spectre_block"
 		},
 		"spectre_core": {
-			"textures": "textures/blocks/spectre_core"
+			"textures": "textures/block/spectre_core"
 		}
 	}
 }

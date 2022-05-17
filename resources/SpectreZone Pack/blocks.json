@@ -1,0 +1,10 @@
+{
+	"spectre_block" : {
+		"sound" : "glass",
+		"textures" : "spectre_block"
+	},
+	"spectre_core" : {
+		"sound" : "glass",
+		"textures" : "spectre_core"
+	}
+}
