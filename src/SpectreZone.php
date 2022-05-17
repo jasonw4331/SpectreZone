@@ -197,8 +197,9 @@ final class SpectreZone extends PluginBase {
 				function(PlayerQuitEvent $event) {
 					$player = $event->getPlayer();
 					if(isset($this->savedPositions[$player->getUniqueId()->toString()])) { // if set, the player is in the SpectreZone world
-						$position = $this->savedPositions[$player->getUniqueId()->toString()];
+						[$position, $viewDistance] = $this->savedPositions[$player->getUniqueId()->toString()];
 						unset($this->savedPositions[$player->getUniqueId()->toString()]);
+						$player->setViewDistance($viewDistance);
 						$player->teleport($position); // teleport the player back to their last position
 					}
 				}
