@@ -377,9 +377,9 @@ final class SpectreZone extends PluginBase {
 
 	private function spawnParticles(Position $position){
 
-		$xOffset = lcg_value() > 0.5 ? lcg_value() : -lcg_value();
-		$zOffset = lcg_value() > 0.5 ? lcg_value() : -lcg_value();
+		$xOffset = lcg_value() > 0.5 ? lcg_value() : -lcg_value() + 0.5;
+		$zOffset = lcg_value() > 0.5 ? lcg_value() : -lcg_value() + 0.5;
 
-		$position->getWorld()->addParticle($position->add($xOffset, 1, $zOffset), new DustParticle(new Color(68, 188, 255)));
+		$position->getWorld()->addParticle($position->add($xOffset, 1.6, $zOffset), new DustParticle(new Color(170, 230, 255))); // hex aae6ff
 	}
 }
