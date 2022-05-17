@@ -123,6 +123,7 @@ final class SpectreZone extends PluginBase {
 			$blockFactory->registerBlock($class, $namespace.$blockName, ucwords(str_replace('_', ' ', $blockName)), BlockBreakInfo::indestructible());
 			$blockInstance = $blockFactory->get($namespace.$blockName);
 			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
+			CreativeInventory::getInstance()->add($blockInstance->asItem());
 		}
 
 		$this->getLogger()->debug('Registered custom blocks');
