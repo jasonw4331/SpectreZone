@@ -38,7 +38,7 @@ final class SpectreZoneGenerator extends Generator{
 		if($this->isChunkValid($chunkX, $chunkZ)) {
 			$block = $blockFactory->get('spectrezone:spectre_core');
 
-			$center = (int)floor(Chunk::EDGE_LENGTH / 2);
+			$center = (int)ceil(Chunk::EDGE_LENGTH / 2);
 
 			for($y = $world->getMinY(); $y < $world->getMaxY(); ++$y){
 				for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
