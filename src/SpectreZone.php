@@ -135,14 +135,14 @@ final class SpectreZone extends PluginBase {
 		$zip = new \ZipArchive();
 		$zip->open(Path::join($this->getDataFolder(), $this->getName().'.mcpack'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 		foreach($this->getResources() as $resource){
-			if($resource->isFile() and str_contains($resource->getPathname(), 'SpectreZone Pack')){
-				$relativePath = Path::normalize(preg_replace("/.*[\/\\\\]SpectreZone\hPack[\/\\\\].*/U", '', $resource->getPathname()));
-				$this->saveResource(Path::join('SpectreZone Pack', $relativePath), false);
-				$zip->addFile(Path::join($this->getDataFolder(), 'SpectreZone Pack', $relativePath), $relativePath);
+			if($resource->isFile() and str_contains($resource->getPathname(), $this->getName().' Pack')){
+				$relativePath = Path::normalize(preg_replace("/.*[\/\\\\]{$this->getName()}\hPack[\/\\\\].*/U", '', $resource->getPathname()));
+				$this->saveResource(Path::join($this->getName().' Pack', $relativePath), false);
+				$zip->addFile(Path::join($this->getDataFolder(), $this->getName().' Pack', $relativePath), $relativePath);
 			}
 		}
 		$zip->close();
-		Filesystem::recursiveUnlink(Path::join($this->getDataFolder().'SpectreZone Pack'));
+		Filesystem::recursiveUnlink(Path::join($this->getDataFolder().$this->getName().' Pack'));
 		$this->getLogger()->debug('Resource pack compiled');
 
 		// Register resource pack
