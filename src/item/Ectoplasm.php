@@ -7,7 +7,7 @@ use pocketmine\item\ItemIdentifier;
 use twistedasylummc\customies\item\ItemComponents;
 use twistedasylummc\customies\item\ItemComponentsTrait;
 
-class Ectoplasm extends Item implements ItemComponents{
+final class Ectoplasm extends Item implements ItemComponents{
 	use ItemComponentsTrait;
 
 	public function __construct(ItemIdentifier $identifier, string $name = 'Ectoplasm'){

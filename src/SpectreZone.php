@@ -155,7 +155,7 @@ final class SpectreZone extends PluginBase {
 			'SpectreZone',
 			\Closure::fromCallable(
 				function(string $generatorOptions) {
-					$parsedOptions = \json_decode($generatorOptions, true, flags: JSON_THROW_ON_ERROR);
+					$parsedOptions = \json_decode($generatorOptions, true, flags: \JSON_THROW_ON_ERROR);
 					if(!is_int($parsedOptions['Chunk Offset']) or $parsedOptions['Chunk Offset'] < 0) {
 						return new InvalidGeneratorOptionsException();
 					}elseif(!is_int($parsedOptions['Default Height']) or $parsedOptions['Default Height'] < 2 or $parsedOptions['Default Height'] > World::Y_MAX) {
@@ -178,7 +178,7 @@ final class SpectreZone extends PluginBase {
 					->setGeneratorClass(SpectreZoneGenerator::class)
 					->setDifficulty(World::DIFFICULTY_PEACEFUL)
 					->setSpawnPosition(new Vector3(0.5, 1, 0.5))
-					->setGeneratorOptions(\json_encode($this->getConfig()->getAll(), JSON_THROW_ON_ERROR)),
+					->setGeneratorOptions(\json_encode($this->getConfig()->getAll(), flags: \JSON_THROW_ON_ERROR)),
 				false, // Don't generate until blocks are registered on generation thread
 				false // keep this for NativeDimensions compatibility
 			);
@@ -186,7 +186,7 @@ final class SpectreZone extends PluginBase {
 		$this->getLogger()->debug('SpectreZone dimension loaded');
 
 		$spectreZone = $worldManager->getWorldByName('SpectreZone');
-		$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: JSON_THROW_ON_ERROR);
+		$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: \JSON_THROW_ON_ERROR);
 
 		$this->defaultHeight = (int) \abs($options["Default Height"] ?? 4);
 		$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 0);

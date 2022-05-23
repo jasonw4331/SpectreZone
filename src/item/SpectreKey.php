@@ -13,7 +13,7 @@ use pocketmine\Server;
 use twistedasylummc\customies\item\ItemComponents;
 use twistedasylummc\customies\item\ItemComponentsTrait;
 
-class SpectreKey extends Item implements Releasable, ItemComponents{
+final class SpectreKey extends Item implements Releasable, ItemComponents{
 	use ItemComponentsTrait;
 
 	public function __construct(ItemIdentifier $identifier, string $name = 'Spectre Key'){

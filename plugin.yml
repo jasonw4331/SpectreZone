@@ -6,4 +6,6 @@ api: 4.0.0
 author: jasonwynn10
 description: "Creates a Spectre Zone dimension based on the MC Java Random Things Mod"
 depend:
-  - Customies
+ - Customies
+softdepend:
+ - NativeDimensions

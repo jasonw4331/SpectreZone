@@ -10,7 +10,7 @@ use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\format\Chunk;
 
-class SpectreCoreBlock extends Bedrock{
+final class SpectreCoreBlock extends Bedrock{
 
 	public function getLightLevel() : int{
 		return 15;

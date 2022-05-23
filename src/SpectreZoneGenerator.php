@@ -5,6 +5,7 @@ namespace jasonwynn10\SpectreZone;
 use pocketmine\block\Block;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\world\ChunkManager;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\format\LightArray;
@@ -20,7 +21,7 @@ final class SpectreZoneGenerator extends Generator{
 
 	public function __construct(int $seed, string $preset){
 		parent::__construct($seed, $preset);
-		$parsedData = json_decode($preset, true, JSON_THROW_ON_ERROR);
+		$parsedData = \json_decode($preset, true, flags: \JSON_THROW_ON_ERROR);
 		$this->height = (int) \abs($parsedData["Default Height"] ?? 4);
 		$this->multiplier = (int) \abs($parsedData["Chunk Offset"] ?? 1);
 	}
@@ -40,9 +41,9 @@ final class SpectreZoneGenerator extends Generator{
 
 			$center = (int)ceil(Chunk::EDGE_LENGTH / 2);
 
-			for($y = $world->getMinY(); $y < $world->getMaxY(); ++$y){
-				for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
-					for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
+			for($x = 0; $x <= Chunk::EDGE_LENGTH; ++$x){
+				for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
+					for($y = $world->getMinY(); $y < $world->getMaxY(); ++$y){
 						if($y > $world->getMinY() and $y <= $world->getMinY() + $this->height) {
 							$chunk->setFullBlock($x, $y, $z, VanillaBlocks::AIR()->getFullId());
 						}elseif(($x === $center or
@@ -53,6 +54,7 @@ final class SpectreZoneGenerator extends Generator{
 							$chunk->setFullBlock($x, $y, $z, $block->getFullId());
 						}
 					}
+					$chunk->setBiomeId($x, $z, BiomeIds::JUNGLE); // set to jungle so we can get bright green grass
 				}
 			}
 		}
