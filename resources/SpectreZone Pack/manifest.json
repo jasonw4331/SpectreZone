@@ -2,7 +2,7 @@
     "format_version": 2,
     "header": {
         "description": "SpectreZone Plugin Resources",
-        "name": "spectrezone",
+        "name": "SpectreZone",
         "uuid": "13a1c9d4-650f-4809-be33-bc7f1c438b90",
         "version": [
             1,
