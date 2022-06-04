@@ -45,16 +45,16 @@ final class SpectreZoneGenerator extends Generator{
 				for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
 					for($y = $world->getMinY(); $y < $world->getMaxY(); ++$y){
 						if($y > $world->getMinY() and $y <= $world->getMinY() + $this->height) {
-							$chunk->setFullBlock($x, $y, $z, VanillaBlocks::AIR()->getFullId());
+							$chunk->setFullBlock($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, VanillaBlocks::AIR()->getFullId());
 						}elseif(($x === $center or
 							$x === $center + 1) and
 							($z === $center or
 							$z === $center + 1)
 						) {
-							$chunk->setFullBlock($x, $y, $z, $block->getFullId());
+							$chunk->setFullBlock($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, $block->getFullId());
 						}
 					}
-					$chunk->setBiomeId($x, $z, BiomeIds::JUNGLE); // set to jungle so we can get bright green grass
+					$chunk->setBiomeId($x & Chunk::COORD_MASK, $z & Chunk::COORD_MASK, BiomeIds::JUNGLE); // set to jungle so we can get bright green grass
 				}
 			}
 		}
