@@ -2,10 +2,10 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone\item;
 
+use customiesdevs\customies\item\ItemComponents;
+use customiesdevs\customies\item\ItemComponentsTrait;
 use pocketmine\item\Item;
 use pocketmine\item\ItemIdentifier;
-use twistedasylummc\customies\item\ItemComponents;
-use twistedasylummc\customies\item\ItemComponentsTrait;
 
 final class SpectreIngot extends Item implements ItemComponents{
 	use ItemComponentsTrait;
