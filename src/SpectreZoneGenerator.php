@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
-use use customiesdevs\customies\block\CustomiesBlockFactory;
+use customiesdevs\customies\block\CustomiesBlockFactory;
 use pocketmine\block\Block;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\VanillaBlocks;
