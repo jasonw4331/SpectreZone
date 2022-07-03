@@ -27,6 +27,7 @@ use pocketmine\nbt\tag\ListTag;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\resourcepacks\ResourcePack;
+use pocketmine\resourcepacks\ZippedResourcePack;
 use pocketmine\scheduler\CancelTaskException;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\Filesystem;
