@@ -6,12 +6,12 @@ use customiesdevs\customies\block\CustomiesBlockFactory;
 use customiesdevs\customies\item\CustomiesItemFactory;
 use jasonwynn10\SpectreZone\block\SpectreBlock;
 use jasonwynn10\SpectreZone\block\SpectreCoreBlock;
-use jasonwynn10\SpectreZone\item\CreativeSpectreKey;
 use jasonwynn10\SpectreZone\item\Ectoplasm;
 use jasonwynn10\SpectreZone\item\SpectreIngot;
 use jasonwynn10\SpectreZone\item\SpectreKey;
 use libCustomPack\libCustomPack;
 use pocketmine\block\BlockBreakInfo;
+use pocketmine\block\BlockIdentifier;
 use pocketmine\color\Color;
 use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
@@ -123,7 +123,7 @@ final class SpectreZone extends PluginBase {
 			'spectre_block' => SpectreBlock::class,
 			'spectre_core' => SpectreCoreBlock::class
 		] as $blockName => $class) {
-			$blockFactory->registerBlock($class, $namespace.$blockName, ucwords(str_replace('_', ' ', $blockName)), BlockBreakInfo::indestructible());
+			$blockFactory->registerBlock(static fn($id) => new $class(new BlockIdentifier($id, 0), ucwords(str_replace('_', ' ', $blockName)), BlockBreakInfo::indestructible()), $namespace.$blockName);
 			$blockInstance = $blockFactory->get($namespace.$blockName);
 			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
 			CreativeInventory::getInstance()->add($blockInstance->asItem());
