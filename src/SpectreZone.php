@@ -61,7 +61,6 @@ final class SpectreZone extends PluginBase {
 			$itemFactory->registerItem($class, $namespace.$itemName, ucwords(str_replace('_', ' ', $itemName)));
 			$itemInstance = $itemFactory->get($namespace.$itemName);
 			StringToItemParser::getInstance()->register($itemName, static fn(string $input) => $itemInstance);
-			CreativeInventory::getInstance()->add($itemInstance);
 		}
 
 		$this->getLogger()->debug('Registered custom items');
@@ -130,7 +129,6 @@ final class SpectreZone extends PluginBase {
 				new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE));
 			$blockInstance = $blockFactory->get($namespace.$blockName);
 			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
-			CreativeInventory::getInstance()->add($blockInstance->asItem());
 		}
 
 		$this->getLogger()->debug('Registered custom blocks');
