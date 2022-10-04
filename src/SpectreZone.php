@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace jasonwynn10\SpectreZone;
 
 use customiesdevs\customies\block\CustomiesBlockFactory;
+use customiesdevs\customies\item\CreativeInventoryInfo;
 use customiesdevs\customies\item\CustomiesItemFactory;
 use jasonwynn10\SpectreZone\block\SpectreBlock;
 use jasonwynn10\SpectreZone\block\SpectreCoreBlock;
@@ -17,7 +18,6 @@ use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use pocketmine\inventory\CreativeInventory;
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
@@ -123,7 +123,11 @@ final class SpectreZone extends PluginBase {
 			'spectre_block' => SpectreBlock::class,
 			'spectre_core' => SpectreCoreBlock::class
 		] as $blockName => $class) {
-			$blockFactory->registerBlock(static fn($id) => new $class(new BlockIdentifier($id, 0), ucwords(str_replace('_', ' ', $blockName)), BlockBreakInfo::indestructible()), $namespace.$blockName);
+			$blockFactory->registerBlock(
+				static fn($id) => new $class(new BlockIdentifier($id, 0), ucwords(str_replace('_', ' ', $blockName)),BlockBreakInfo::indestructible()),
+				$namespace.$blockName,
+				null,
+				new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE));
 			$blockInstance = $blockFactory->get($namespace.$blockName);
 			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
 			CreativeInventory::getInstance()->add($blockInstance->asItem());
