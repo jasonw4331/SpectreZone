@@ -1,0 +1,37 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to static method getInstance\\(\\) on an unknown class customiesdevs\\\\customies\\\\block\\\\CustomiesBlockFactory\\.$#"
+			count: 1
+			path: ../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Cannot access offset 'Chunk Offset' on mixed\\.$#"
+			count: 1
+			path: ../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Cannot access offset 'Default Height' on mixed\\.$#"
+			count: 1
+			path: ../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Cannot call method setBiomeId\\(\\) on pocketmine\\\\world\\\\format\\\\Chunk\\|null\\.$#"
+			count: 1
+			path: ../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Cannot call method setFullBlock\\(\\) on pocketmine\\\\world\\\\format\\\\Chunk\\|null\\.$#"
+			count: 2
+			path: ../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Cannot call method setSubChunk\\(\\) on pocketmine\\\\world\\\\format\\\\Chunk\\|null\\.$#"
+			count: 1
+			path: ../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Parameter \\#1 \\$number of function abs expects float\\|int\\|string, mixed given\\.$#"
+			count: 2
+			path: ../src/SpectreZoneGenerator.php
+

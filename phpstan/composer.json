@@ -1,0 +1,40 @@
+{
+	"name": "jasonwynn10/phpstan-plugin-config",
+	"repositories": [
+		{
+			"type": "package",
+			"package": {
+				"name": "customiesdevs/customies",
+				"version": "1.2.0",
+				"source": {
+					"url": "https://github.com/CustomiesDevs/Customies.git",
+					"type": "git",
+					"reference": "master"
+				},
+				"autoload": {
+					"psr-4": {
+						"CustomiesDevs\\Customies\\": "src/"
+					}
+				}
+			}
+		}
+	],
+	"require": {
+		"phpstan/phpstan": "1.4.6",
+		"pocketmine/pocketmine-mp": "4.0.0",
+		"phpstan/phpstan-strict-rules": "^1.0",
+		"phpstan/extension-installer": "^1.0",
+		"symfony/filesystem": "^5.4",
+		"customiesdevs/customies": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"jasonwynn10\\SpectreZone\\": "../src"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"phpstan/extension-installer": true
+		}
+	}
+}
