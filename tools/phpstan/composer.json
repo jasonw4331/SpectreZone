@@ -36,5 +36,8 @@
 		"allow-plugins": {
 			"phpstan/extension-installer": true
 		}
+	},
+	"scripts": {
+		"make-baseline": "@php ./vendor/bin/phpstan analyse -b -c phpstan.neon.dist"
 	}
 }
