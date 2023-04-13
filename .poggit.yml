@@ -14,4 +14,7 @@ projects:
       - .gitignore
       - CONTRIBUTING.md
       - SECURITY.md
+    libs:
+      - src: jasonwynn10/libCustomPack/libCustomPack
+        version: ^0.1.1
 ...

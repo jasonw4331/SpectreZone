@@ -146,23 +146,9 @@ final class SpectreZone extends PluginBase{
 
 		$this->getLogger()->debug('Registered custom blocks');
 
-		// Compile resource pack
-		$zip = new \ZipArchive();
-		$zip->open(Path::join($this->getDataFolder(), $this->getName().'.mcpack'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-		foreach($this->getResources() as $resource){
-			if($resource->isFile() and str_contains($resource->getPathname(), $this->getName().' Pack')){
-				$relativePath = Path::normalize(preg_replace("/.*[\/\\\\]{$this->getName()}\hPack[\/\\\\].*/U", '', $resource->getPathname()));
-				$this->saveResource(Path::join($this->getName().' Pack', $relativePath), false);
-				$zip->addFile(Path::join($this->getDataFolder(), $this->getName().' Pack', $relativePath), $relativePath);
-			}
-		}
-		$zip->close();
-		Filesystem::recursiveUnlink(Path::join($this->getDataFolder().$this->getName().' Pack'));
-		$this->getLogger()->debug('Resource pack compiled');
-
-		// Register resource pack
-		$this->registerResourcePack(self::$pack = new ZippedResourcePack(Path::join($this->getDataFolder(), $this->getName().'.mcpack')));
-		$this->getLogger()->debug('Resource pack registered');
+		// Build and register resource pack
+		libCustomPack::registerResourcePack(self::$pack = libCustomPack::generatePackFromResources($this));
+		$this->getLogger()->debug('Resource pack installed');
 
 		// Register world generator
 		GeneratorManager::getInstance()->addGenerator(
@@ -258,48 +244,8 @@ final class SpectreZone extends PluginBase{
 		libCustomPack::unregisterResourcePack(self::$pack);
 		$this->getLogger()->debug('Resource pack uninstalled');
 
-		$property = $reflection->getProperty("resourcePacks");
-		$property->setAccessible(true);
-		$currentResourcePacks = $property->getValue($manager);
-		$key = array_search($pack, $currentResourcePacks);
-		if($key !== false){
-			unset($currentResourcePacks[$key]);
-			$property->setValue($manager, $currentResourcePacks);
-		}
-
-		$property = $reflection->getProperty("uuidList");
-		$property->setAccessible(true);
-		$currentUUIDPacks = $property->getValue($manager);
-		if(isset($currentResourcePacks[mb_strtolower($pack->getPackId())])) {
-			unset($currentUUIDPacks[mb_strtolower($pack->getPackId())]);
-			$property->setValue($manager, $currentUUIDPacks);
-		}
-		$this->getLogger()->debug('Resource pack unregistered');
-
-		unlink(Path::join($this->getDataFolder(), $this->getName().'.mcpack'));
+		unlink(Path::join($this->getDataFolder(), self::$pack->getPackName() . '.mcpack'));
 		$this->getLogger()->debug('Resource pack file deleted');
-	}
-
-	private function registerResourcePack(ResourcePack $pack){
-		$manager = $this->getServer()->getResourcePackManager();
-
-		$reflection = new \ReflectionClass($manager);
-
-		$property = $reflection->getProperty("resourcePacks");
-		$property->setAccessible(true);
-		$currentResourcePacks = $property->getValue($manager);
-		$currentResourcePacks[] = $pack;
-		$property->setValue($manager, $currentResourcePacks);
-
-		$property = $reflection->getProperty("uuidList");
-		$property->setAccessible(true);
-		$currentUUIDPacks = $property->getValue($manager);
-		$currentUUIDPacks[mb_strtolower($pack->getPackId())] = $pack;
-		$property->setValue($manager, $currentUUIDPacks);
-
-		$property = $reflection->getProperty("serverForceResources");
-		$property->setAccessible(true);
-		$property->setValue($manager, true);
 	}
 
 	public function getDefaultHeight() : int{
