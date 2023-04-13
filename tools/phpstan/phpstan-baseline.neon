@@ -1,9 +1,69 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Call to static method getInstance\\(\\) on an unknown class customiesdevs\\\\customies\\\\block\\\\CustomiesBlockFactory\\.$#"
+			message: "#^Call to static method generatePackFromResources\\(\\) on an unknown class libCustomPack\\\\libCustomPack\\.$#"
 			count: 1
-			path: ../../src/SpectreZoneGenerator.php
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Call to static method registerResourcePack\\(\\) on an unknown class libCustomPack\\\\libCustomPack\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Call to static method unregisterResourcePack\\(\\) on an unknown class libCustomPack\\\\libCustomPack\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Cannot access offset 'Chunk Offset' on mixed\\.$#"
+			count: 3
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Cannot access offset 'Default Height' on mixed\\.$#"
+			count: 4
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Cannot call method getPackName\\(\\) on pocketmine\\\\resourcepacks\\\\ResourcePack\\|null\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Cannot call method getProvider\\(\\) on pocketmine\\\\world\\\\World\\|null\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Method jasonwynn10\\\\SpectreZone\\\\SpectreZone\\:\\:spawnParticles\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Method pocketmine\\\\world\\\\WorldManager\\:\\:generateWorld\\(\\) invoked with 4 parameters, 2\\-3 required\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Offset non\\-empty\\-string on array\\<int, array\\<int\\|pocketmine\\\\world\\\\Position\\>\\> in isset\\(\\) does not exist\\.$#"
+			count: 2
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Parameter \\#1 \\$number of function abs expects float\\|int\\|string, mixed given\\.$#"
+			count: 2
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Property jasonwynn10\\\\SpectreZone\\\\SpectreZone\\:\\:\\$savedPositions \\(array\\<int, array\\<int\\|pocketmine\\\\world\\\\Position\\>\\>\\) does not accept array\\<int\\|string, array\\<int\\|pocketmine\\\\world\\\\Position\\>\\>\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
+
+		-
+			message: "#^Right side of && is always false\\.$#"
+			count: 1
+			path: ../../src/SpectreZone.php
 
 		-
 			message: "#^Cannot access offset 'Chunk Offset' on mixed\\.$#"
@@ -34,4 +94,24 @@ parameters:
 			message: "#^Parameter \\#1 \\$number of function abs expects float\\|int\\|string, mixed given\\.$#"
 			count: 2
 			path: ../../src/SpectreZoneGenerator.php
+
+		-
+			message: "#^Parameter \\#1 \\$player of method jasonwynn10\\\\SpectreZone\\\\SpectreZone\\:\\:getSpectreSpawn\\(\\) expects pocketmine\\\\player\\\\Player, pocketmine\\\\player\\\\Player\\|null given\\.$#"
+			count: 1
+			path: ../../src/item/CreativeSpectreKey.php
+
+		-
+			message: "#^Parameter \\#1 \\$pos of method pocketmine\\\\player\\\\Player\\:\\:teleport\\(\\) expects pocketmine\\\\math\\\\Vector3, int\\|pocketmine\\\\world\\\\Position given\\.$#"
+			count: 1
+			path: ../../src/item/CreativeSpectreKey.php
+
+		-
+			message: "#^Parameter \\#1 \\$distance of method pocketmine\\\\player\\\\Player\\:\\:setViewDistance\\(\\) expects int, int\\|pocketmine\\\\world\\\\Position given\\.$#"
+			count: 1
+			path: ../../src/item/SpectreKey.php
+
+		-
+			message: "#^Parameter \\#1 \\$pos of method pocketmine\\\\player\\\\Player\\:\\:teleport\\(\\) expects pocketmine\\\\math\\\\Vector3, int\\|pocketmine\\\\world\\\\Position given\\.$#"
+			count: 1
+			path: ../../src/item/SpectreKey.php
 
