@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace jasonwynn10\SpectreZone\item;
 
 use customiesdevs\customies\item\component\ThrowableComponent;
@@ -30,7 +32,7 @@ final class SpectreKey extends Item implements Releasable, ItemComponents{
 	public function onReleaseUsing(Player $player) : ItemUseResult{
 		/** @var SpectreZone $plugin */
 		$plugin = Server::getInstance()->getPluginManager()->getPlugin('SpectreZone');
-		if($player->getWorld() === Server::getInstance()->getWorldManager()->getWorldByName('SpectreZone')) {
+		if($player->getWorld() === Server::getInstance()->getWorldManager()->getWorldByName('SpectreZone')){
 			[$position, $viewDistance] = $plugin->getSavedInfo($player);
 			$player->setViewDistance($viewDistance);
 		}else{

@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace jasonwynn10\SpectreZone;
 
 use customiesdevs\customies\block\CustomiesBlockFactory;
@@ -38,28 +40,39 @@ use pocketmine\world\Position;
 use pocketmine\world\World;
 use pocketmine\world\WorldCreationOptions;
 use Webmozart\PathUtil\Path;
+use function abs;
+use function assert;
+use function is_int;
+use function json_decode;
+use function json_encode;
+use function lcg_value;
+use function mb_strtolower;
+use function str_replace;
+use function ucwords;
+use function unlink;
+use const JSON_THROW_ON_ERROR;
 
-final class SpectreZone extends PluginBase {
+final class SpectreZone extends PluginBase{
 	private static ?ResourcePack $pack = null;
 	/** @var array<int, array<Position|int>> $savedPositions */
 	private array $savedPositions = [];
 	private int $defaultHeight = 4;
 	private int $chunkOffset = 0;
 
-	public function onEnable() : void {
+	public function onEnable() : void{
 		$server = $this->getServer();
 
 		// register custom items
 		$itemFactory = CustomiesItemFactory::getInstance();
-		$namespace = mb_strtolower($this->getName()).':';
+		$namespace = mb_strtolower($this->getName()) . ':';
 
 		foreach([
 			'ectoplasm' => Ectoplasm::class,
 			'spectre_ingot' => SpectreIngot::class,
 			'spectre_key' => SpectreKey::class
-		] as $itemName => $class) {
-			$itemFactory->registerItem($class, $namespace.$itemName, ucwords(str_replace('_', ' ', $itemName)));
-			$itemInstance = $itemFactory->get($namespace.$itemName);
+		] as $itemName => $class){
+			$itemFactory->registerItem($class, $namespace . $itemName, ucwords(str_replace('_', ' ', $itemName)));
+			$itemInstance = $itemFactory->get($namespace . $itemName);
 			StringToItemParser::getInstance()->register($itemName, static fn(string $input) => $itemInstance);
 		}
 
@@ -77,10 +90,10 @@ final class SpectreZone extends PluginBase {
 			[
 				'A' => VanillaItems::LAPIS_LAZULI(),
 				'B' => VanillaItems::GOLD_INGOT(),
-				'C' => $itemFactory->get($namespace.'ectoplasm')
+				'C' => $itemFactory->get($namespace . 'ectoplasm')
 			],
 			[
-				$itemFactory->get($namespace.'spectre_ingot')
+				$itemFactory->get($namespace . 'spectre_ingot')
 			]
 		));
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
@@ -92,10 +105,10 @@ final class SpectreZone extends PluginBase {
 			[
 				'A' => VanillaItems::LAPIS_LAZULI(),
 				'B' => VanillaItems::GOLD_INGOT(),
-				'C' => $itemFactory->get($namespace.'ectoplasm')
+				'C' => $itemFactory->get($namespace . 'ectoplasm')
 			],
 			[
-				$itemFactory->get($namespace.'spectre_ingot', 9)
+				$itemFactory->get($namespace . 'spectre_ingot', 9)
 			]
 		));
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
@@ -105,11 +118,11 @@ final class SpectreZone extends PluginBase {
 				'  A'
 			],
 			[
-				'A' => $itemFactory->get($namespace.'spectre_ingot'),
+				'A' => $itemFactory->get($namespace . 'spectre_ingot'),
 				'B' => VanillaItems::ENDER_PEARL()
 			],
 			[
-				$itemFactory->get($namespace.'spectre_key')
+				$itemFactory->get($namespace . 'spectre_key')
 			]
 		));
 
@@ -121,13 +134,13 @@ final class SpectreZone extends PluginBase {
 		foreach([
 			'spectre_block' => SpectreBlock::class,
 			'spectre_core' => SpectreCoreBlock::class
-		] as $blockName => $class) {
+		] as $blockName => $class){
 			$blockFactory->registerBlock(
-				static fn($id) => new $class(new BlockIdentifier($id, 0), ucwords(str_replace('_', ' ', $blockName)),BlockBreakInfo::indestructible()),
-				$namespace.$blockName,
+				static fn($id) => new $class(new BlockIdentifier($id, 0), ucwords(str_replace('_', ' ', $blockName)), BlockBreakInfo::indestructible()),
+				$namespace . $blockName,
 				null,
 				new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE));
-			$blockInstance = $blockFactory->get($namespace.$blockName);
+			$blockInstance = $blockFactory->get($namespace . $blockName);
 			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
 		}
 
@@ -156,11 +169,11 @@ final class SpectreZone extends PluginBase {
 			SpectreZoneGenerator::class,
 			'SpectreZone',
 			\Closure::fromCallable(
-				function(string $generatorOptions) {
-					$parsedOptions = \json_decode($generatorOptions, true, flags: \JSON_THROW_ON_ERROR);
-					if(!is_int($parsedOptions['Chunk Offset']) or $parsedOptions['Chunk Offset'] < 0) {
+				function(string $generatorOptions){
+					$parsedOptions = json_decode($generatorOptions, true, flags: JSON_THROW_ON_ERROR);
+					if(!is_int($parsedOptions['Chunk Offset']) || $parsedOptions['Chunk Offset'] < 0){
 						return new InvalidGeneratorOptionsException();
-					}elseif(!is_int($parsedOptions['Default Height']) or $parsedOptions['Default Height'] < 2 or $parsedOptions['Default Height'] > World::Y_MAX) {
+					}elseif(!is_int($parsedOptions['Default Height']) || $parsedOptions['Default Height'] < 2 || $parsedOptions['Default Height'] > World::Y_MAX){
 						return new InvalidGeneratorOptionsException();
 					}
 					return null;
@@ -172,7 +185,7 @@ final class SpectreZone extends PluginBase {
 
 		// Load or generate the SpectreZone dimension 1 tick after blocks are registered on the generation thread
 		$worldManager = $server->getWorldManager();
-		if(!$worldManager->loadWorld('SpectreZone')) {
+		if(!$worldManager->loadWorld('SpectreZone')){
 			$this->getLogger()->debug('SpectreZone dimension was not loaded. Generating now...');
 			$worldManager->generateWorld(
 				'SpectreZone',
@@ -180,7 +193,7 @@ final class SpectreZone extends PluginBase {
 					->setGeneratorClass(SpectreZoneGenerator::class)
 					->setDifficulty(World::DIFFICULTY_PEACEFUL)
 					->setSpawnPosition(new Vector3(0.5, 1, 0.5))
-					->setGeneratorOptions(\json_encode($this->getConfig()->getAll(), flags: \JSON_THROW_ON_ERROR)),
+					->setGeneratorOptions(json_encode($this->getConfig()->getAll(), flags: JSON_THROW_ON_ERROR)),
 				false, // Don't generate until blocks are registered on generation thread
 				false // keep this for NativeDimensions compatibility
 			);
@@ -188,10 +201,10 @@ final class SpectreZone extends PluginBase {
 		$this->getLogger()->debug('SpectreZone dimension loaded');
 
 		$spectreZone = $worldManager->getWorldByName('SpectreZone');
-		$options = \json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: \JSON_THROW_ON_ERROR);
+		$options = json_decode($spectreZone->getProvider()->getWorldData()->getGeneratorOptions(), true, flags: JSON_THROW_ON_ERROR);
 
-		$this->defaultHeight = (int) \abs($options["Default Height"] ?? 4);
-		$this->chunkOffset = (int) \abs($options["Chunk Offset"] ?? 0);
+		$this->defaultHeight = (int) abs($options["Default Height"] ?? 4);
+		$this->chunkOffset = (int) abs($options["Chunk Offset"] ?? 0);
 
 		// register events
 		$pluginManager = $server->getPluginManager();
@@ -199,9 +212,9 @@ final class SpectreZone extends PluginBase {
 		$pluginManager->registerEvent(
 			PlayerQuitEvent::class,
 			\Closure::fromCallable(
-				function(PlayerQuitEvent $event) {
+				function(PlayerQuitEvent $event){
 					$player = $event->getPlayer();
-					if(isset($this->savedPositions[$player->getUniqueId()->toString()])) { // if set, the player is in the SpectreZone world
+					if(isset($this->savedPositions[$player->getUniqueId()->toString()])){ // if set, the player is in the SpectreZone world
 						[$position, $viewDistance] = $this->savedPositions[$player->getUniqueId()->toString()];
 						unset($this->savedPositions[$player->getUniqueId()->toString()]);
 						$player->setViewDistance($viewDistance);
@@ -216,13 +229,13 @@ final class SpectreZone extends PluginBase {
 		$pluginManager->registerEvent(
 			PlayerItemUseEvent::class,
 			\Closure::fromCallable(
-				function(PlayerItemUseEvent $event) {
+				function(PlayerItemUseEvent $event){
 					$player = $event->getPlayer();
-					if($event->getItem() instanceof SpectreKey and !$player->isUsingItem()) {
+					if($event->getItem() instanceof SpectreKey && !$player->isUsingItem()){
 						$this->getScheduler()->scheduleRepeatingTask(new ClosureTask(
 							\Closure::fromCallable(
-								function() use ($player) {
-									if($player->getInventory()->getItemInHand() instanceof SpectreKey and $player->isUsingItem()) {
+								function() use ($player){
+									if($player->getInventory()->getItemInHand() instanceof SpectreKey && $player->isUsingItem()){
 										$this->spawnParticles($player->getPosition());
 									}else{
 										throw new CancelTaskException();
@@ -241,11 +254,9 @@ final class SpectreZone extends PluginBase {
 		$this->getLogger()->debug('Event listeners registered');
 	}
 
-	public function onDisable() : void {
-		$manager = $this->getServer()->getResourcePackManager();
-		$pack = self::$pack;
-
-		$reflection = new \ReflectionClass($manager);
+	public function onDisable() : void{
+		libCustomPack::unregisterResourcePack(self::$pack);
+		$this->getLogger()->debug('Resource pack uninstalled');
 
 		$property = $reflection->getProperty("resourcePacks");
 		$property->setAccessible(true);
@@ -299,9 +310,9 @@ final class SpectreZone extends PluginBase {
 		return $this->chunkOffset;
 	}
 
-	public function getSpectreSpawn(Player $player) : Position {
+	public function getSpectreSpawn(Player $player) : Position{
 		$spectreZone = $this->getServer()->getWorldManager()->getWorldByName('SpectreZone');
-		\assert($spectreZone !== null);
+		assert($spectreZone !== null);
 		$worldData = $spectreZone->getProvider()->getWorldData();
 
 		$ref = new \ReflectionClass(BaseNbtWorldData::class);
@@ -316,32 +327,32 @@ final class SpectreZone extends PluginBase {
 		$highestX = 0;
 		$highestZ = 0;
 		/** @var CompoundTag $value */
-		foreach($tag->getValue() as $value) {
+		foreach($tag->getValue() as $value){
 			$chunkX = $value->getInt('chunkX');
 			$chunkZ = $value->getInt('chunkZ');
-			if($value->getString('UUID') === $player->getUniqueId()->toString()) {
+			if($value->getString('UUID') === $player->getUniqueId()->toString()){
 				return new Position(($chunkX << Chunk::COORD_BIT_SIZE) + (Chunk::COORD_BIT_SIZE / 2), 2, ($chunkZ << Chunk::COORD_BIT_SIZE) + (Chunk::COORD_BIT_SIZE / 2), $spectreZone);
 			}
-			if(\abs($chunkX) > \abs($highestX)) {
+			if(abs($chunkX) > abs($highestX)){
 				$highestX = $chunkX;
 			}
-			if(\abs($chunkZ) > \abs($highestZ)) {
+			if(abs($chunkZ) > abs($highestZ)){
 				$highestZ = $chunkZ;
 			}
 		}
 
 		$alternator = true;
-		while(!$this->isUsableChunk($highestX, $highestZ)) {
+		while(!$this->isUsableChunk($highestX, $highestZ)){
 			if($alternator){
-				if($highestX > 0) {
+				if($highestX > 0){
 					$highestX--;
-				} else {
+				}else{
 					$highestX++;
 				}
 			}else{
-				if($highestZ > 0) {
+				if($highestZ > 0){
 					$highestZ--;
-				} else {
+				}else{
 					$highestZ++;
 				}
 			}
@@ -360,20 +371,18 @@ final class SpectreZone extends PluginBase {
 	}
 
 	private function isUsableChunk(int $chunkX, int $chunkZ) : bool{
-		return $chunkX % (3 + $this->chunkOffset) === 0 and $chunkZ % (3 + $this->chunkOffset) === 0;
+		return $chunkX % (3 + $this->chunkOffset) === 0 && $chunkZ % (3 + $this->chunkOffset) === 0;
 	}
 
-	public function savePlayerInfo(Player $player) : void {
+	public function savePlayerInfo(Player $player) : void{
 		$this->savedPositions[$player->getUniqueId()->toString()] = [$player->getPosition(), $player->getViewDistance()];
 	}
 
 	/**
-	 * @param Player $player
-	 *
 	 * @return array<Position|int>
 	 */
-	public function getSavedInfo(Player $player) : array {
-		if(isset($this->savedPositions[$player->getUniqueId()->toString()])) {
+	public function getSavedInfo(Player $player) : array{
+		if(isset($this->savedPositions[$player->getUniqueId()->toString()])){
 			[$position, $viewDistance] = $this->savedPositions[$player->getUniqueId()->toString()];
 			unset($this->savedPositions[$player->getUniqueId()->toString()]);
 			return [$position, $viewDistance];

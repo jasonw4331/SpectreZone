@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace jasonwynn10\SpectreZone\block;
 
 use jasonwynn10\SpectreZone\item\Ectoplasm;
@@ -17,7 +19,7 @@ final class SpectreCoreBlock extends Bedrock{
 	}
 
 	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
-		if(!$item instanceof Ectoplasm) {
+		if(!$item instanceof Ectoplasm){
 			return false;
 		}
 
@@ -29,7 +31,7 @@ final class SpectreCoreBlock extends Bedrock{
 
 		// find lowest block in chunk above y = 2
 		for($y = 2; $y < $position->getWorld()->getMaxY() - 1; ++$y){
-			if($world->getBlockAt($cornerX, $y, $cornerZ) instanceof SpectreBlock) {
+			if($world->getBlockAt($cornerX, $y, $cornerZ) instanceof SpectreBlock){
 				// remove all blocks at this height
 				for($x = 0; $x < Chunk::EDGE_LENGTH; ++$x){ // cornerX is at 1 relatively
 					for($z = 0; $z < Chunk::EDGE_LENGTH; ++$z){  // cornerZ is at 1 relatively

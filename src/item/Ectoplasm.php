@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace jasonwynn10\SpectreZone\item;
 
 use customiesdevs\customies\item\CreativeInventoryInfo;
