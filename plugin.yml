@@ -2,7 +2,7 @@ name: SpectreZone
 main: jasonwynn10\SpectreZone\SpectreZone
 src-namespace-prefix: jasonwynn10\SpectreZone
 version: 1.0.3
-api: 4.0.0
+api: 4.16.0
 author: jasonwynn10
 description: "Creates a Spectre Zone dimension based on the MC Java Random Things Mod"
 depend:

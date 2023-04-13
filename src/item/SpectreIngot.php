@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace jasonwynn10\SpectreZone\item;
 
+use customiesdevs\customies\item\CreativeInventoryInfo;
 use customiesdevs\customies\item\ItemComponents;
 use customiesdevs\customies\item\ItemComponentsTrait;
 use pocketmine\item\Item;
@@ -12,8 +13,6 @@ final class SpectreIngot extends Item implements ItemComponents{
 
 	public function __construct(ItemIdentifier $identifier, string $name = 'Spectre Ingot'){
 		parent::__construct($identifier, $name);
-		$this->initComponent('spectre_ingot', 64);
-		$this->addProperty('creative_group', 'Items');
-		$this->addProperty('creative_category', 4);
+		$this->initComponent('spectre_ingot', new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_ITEMS, CreativeInventoryInfo::NONE));
 	}
 }
