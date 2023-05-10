@@ -44,10 +44,10 @@ jobs:
       - id: get-manifest
         run: |
           echo "NAME=$(grep '^name:' plugin.yml | cut -d' ' -f2- | xargs)" >> $GITHUB_OUTPUT
-          echo "VERSION=$(grep '^version:' plugin.yml | cut -d' ' -f2- | xargs)" >> $GITHUB_OUTPUT
           echo "PRERELEASE=$(grep '^version:' plugin.yml | cut -d' ' -f2- | xargs | grep -E 'alpha|beta|pre' && echo 'true')" >> $GITHUB_OUTPUT
           echo "API=$(grep '^api:' plugin.yml | cut -d' ' -f2- | xargs)" >> $GITHUB_OUTPUT
           sed -i '/src-namespace-prefix/d' plugin.yml
+          sed -i "s/version: .*/version: ${{ github.ref_name }}/g" plugin.yml
 
       - name: Build plugin archive
         run: php pharynx.phar -i . -f LICENSE -c -p=${{ github.workspace }}/${{ steps.get-manifest.outputs.NAME }}.phar
@@ -65,9 +65,9 @@ jobs:
           artifacts: ${{ github.workspace }}/${{ steps.get-manifest.outputs.NAME }}.phar
           commit: ${{ github.sha }}
           draft: true
-          name: ${{ steps.get-manifest.outputs.NAME }} ${{ steps.get-manifest.outputs.VERSION }}
+          name: ${{ steps.get-manifest.outputs.NAME }} v${{ github.ref_name }}
           prerelease: ${{ steps.get-manifest.outputs.PRERELEASE }}
-          tag: ${{ steps.get-manifest.outputs.VERSION }}
+          tag: ${{ github.ref_name }}
           #token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             **For PocketMine API ${{ steps.get-manifest.outputs.API }}**

@@ -1,6 +1,5 @@
 {
 	"name": "jasonw4331/spectrezone",
-	"version": "1.0.0",
 	"description": "A plugin which gives each player their own space in a custom generated spectre dimension",
 	"type": "library",
 	"license": "lgpl-3.0-or-later",
