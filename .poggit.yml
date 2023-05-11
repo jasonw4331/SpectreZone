@@ -1,4 +1,4 @@
---- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/jasonwynn10/SpectreZone
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/jasonw4331/SpectreZone
 build-by-default: true
 projects:
   SpectreZone:
@@ -15,6 +15,6 @@ projects:
       - CONTRIBUTING.md
       - SECURITY.md
     libs:
-      - src: jasonwynn10/libCustomPack/libCustomPack
-        version: ^0.1.1
+      - src: jasonw4331/libCustomPack/libCustomPack
+        version: ^1.0.0
 ...
