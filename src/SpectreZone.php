@@ -142,7 +142,7 @@ final class SpectreZone extends PluginBase{
 		$blockFactory = CustomiesBlockFactory::getInstance();
 
 		/**
-		 * @phpstan-var array{Block, BlockBreakInfo, CreativeInventoryInfo, ?Closure, ?Closure} $blockInfo
+		 * @phpstan-var array{Block, BlockBreakInfo, ?CreativeInventoryInfo, ?Closure, ?Closure} $blockInfo
 		 */
 		foreach([
 			'spectre_block' => [SpectreBlock::class, BlockBreakInfo::indestructible(), new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE)],
