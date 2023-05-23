@@ -6,7 +6,7 @@ namespace jasonw4331\SpectreZone;
 
 use customiesdevs\customies\block\CustomiesBlockFactory;
 use pocketmine\block\Block;
-use pocketmine\block\BlockLegacyIds;
+use pocketmine\block\BlockTypeIds;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\data\bedrock\BiomeIds;
 use pocketmine\world\ChunkManager;
@@ -27,20 +27,30 @@ final class SpectreZoneGenerator extends Generator{
 
 	public function __construct(int $seed, string $preset){
 		parent::__construct($seed, $preset);
+		/**
+		 * @phpstan-var array{"Default Height": ?int, "Chunk Offset": ?int} $parsedData
+		 */
 		$parsedData = json_decode($preset, true, flags: JSON_THROW_ON_ERROR);
-		$this->height = (int) abs($parsedData["Default Height"] ?? 4);
-		$this->multiplier = (int) abs($parsedData["Chunk Offset"] ?? 1);
+		$this->height = abs($parsedData["Default Height"] ?? 4);
+		$this->multiplier = abs($parsedData["Chunk Offset"] ?? 1);
 	}
 
 	public function generateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void{
-		$chunk = $world->getChunk($chunkX, $chunkZ);
-
 		$blockFactory = CustomiesBlockFactory::getInstance();
 		$block = $blockFactory->get('spectrezone:spectre_block');
 
-		for($subChunkY = Chunk::MIN_SUBCHUNK_INDEX; $subChunkY <= Chunk::MAX_SUBCHUNK_INDEX; ++$subChunkY){
-			$chunk->setSubChunk($subChunkY, new SubChunk(BlockLegacyIds::AIR << Block::INTERNAL_METADATA_BITS, [new PalettedBlockArray($block->getFullId())], LightArray::fill(15), LightArray::fill(15)));
-		}
+		$chunk = new Chunk(
+			array_fill(Chunk::MIN_SUBCHUNK_INDEX, Chunk::MAX_SUBCHUNK_INDEX - Chunk::MIN_SUBCHUNK_INDEX,
+				new SubChunk(
+					BlockTypeIds::AIR << Block::INTERNAL_STATE_DATA_BITS,
+					[new PalettedBlockArray($block->getStateId())],
+					new PalettedBlockArray(BiomeIds::JUNGLE), // set to jungle so we can get bright green grass
+					LightArray::fill(15),
+					LightArray::fill(15)
+				)
+			),
+			true
+		);
 
 		if($this->isChunkValid($chunkX, $chunkZ)){
 			$block = $blockFactory->get('spectrezone:spectre_core');
@@ -51,19 +61,18 @@ final class SpectreZoneGenerator extends Generator{
 				for($z = 0; $z <= Chunk::EDGE_LENGTH; ++$z){
 					for($y = $world->getMinY(); $y < $world->getMaxY(); ++$y){
 						if($y > $world->getMinY() && $y <= $world->getMinY() + $this->height){
-							$chunk->setFullBlock($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, VanillaBlocks::AIR()->getFullId());
-						}elseif(($x === $center ||
-								$x === $center + 1) &&
-							($z === $center ||
-								$z === $center + 1)
+							$chunk->setBlockStateId($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, VanillaBlocks::AIR()->getStateId());
+						}elseif(
+							($x === $center || $x === $center + 1) &&
+							($z === $center || $z === $center + 1)
 						){
-							$chunk->setFullBlock($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, $block->getFullId());
+							$chunk->setBlockStateId($x & Chunk::COORD_MASK, $y, $z & Chunk::COORD_MASK, $block->getStateId());
 						}
 					}
-					$chunk->setBiomeId($x & Chunk::COORD_MASK, $z & Chunk::COORD_MASK, BiomeIds::JUNGLE); // set to jungle so we can get bright green grass
 				}
 			}
 		}
+		$world->setChunk($chunkX, $chunkZ, $chunk);
 	}
 
 	public function populateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void{ }
