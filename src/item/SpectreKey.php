@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace jasonwynn10\SpectreZone\item;
+namespace jasonw4331\SpectreZone\item;
 
 use customiesdevs\customies\item\component\ThrowableComponent;
 use customiesdevs\customies\item\CreativeInventoryInfo;
 use customiesdevs\customies\item\ItemComponents;
 use customiesdevs\customies\item\ItemComponentsTrait;
-use jasonwynn10\SpectreZone\SpectreZone;
+use jasonw4331\SpectreZone\SpectreZone;
 use pocketmine\item\Item;
 use pocketmine\item\ItemIdentifier;
 use pocketmine\item\ItemUseResult;

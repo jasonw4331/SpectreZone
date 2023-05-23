@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace jasonwynn10\SpectreZone\block;
+namespace jasonw4331\SpectreZone\block;
 
-use jasonwynn10\SpectreZone\item\Ectoplasm;
+use jasonw4331\SpectreZone\item\Ectoplasm;
 use pocketmine\block\Bedrock;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\item\Item;
@@ -18,9 +18,9 @@ final class SpectreCoreBlock extends Bedrock{
 		return 15;
 	}
 
-	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null) : bool{
+	public function onInteract(Item $item, int $face, Vector3 $clickVector, ?Player $player = null, array &$returnedItems = []) : bool{
 		if(!$item instanceof Ectoplasm){
-			return false;
+			return parent::onInteract($item, $face, $clickVector, $player, $returnedItems);
 		}
 
 		$position = $this->getPosition();
@@ -42,6 +42,6 @@ final class SpectreCoreBlock extends Bedrock{
 				return true;
 			}
 		}
-		return false;
+		return parent::onInteract($item, $face, $clickVector, $player, $returnedItems);
 	}
 }

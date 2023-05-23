@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace jasonwynn10\SpectreZone\block;
+namespace jasonw4331\SpectreZone\block;
 
 use pocketmine\block\Bedrock;
 
