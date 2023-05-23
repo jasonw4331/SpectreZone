@@ -16,6 +16,7 @@ use pocketmine\world\format\PalettedBlockArray;
 use pocketmine\world\format\SubChunk;
 use pocketmine\world\generator\Generator;
 use function abs;
+use function array_fill;
 use function ceil;
 use function json_decode;
 use const JSON_THROW_ON_ERROR;
