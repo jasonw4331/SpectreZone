@@ -1185,52 +1185,6 @@
             "time": "2020-12-11T01:45:37+00:00"
         },
         {
-            "name": "pocketmine/classloader",
-            "version": "0.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pmmp/ClassLoader.git",
-                "reference": "407caf521186ec1f03024f39031cc681ad491026"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/ClassLoader/zipball/407caf521186ec1f03024f39031cc681ad491026",
-                "reference": "407caf521186ec1f03024f39031cc681ad491026",
-                "shasum": ""
-            },
-            "require": {
-                "ext-pthreads": "^5.0",
-                "ext-reflection": "*",
-                "php": "^8.0"
-            },
-            "conflict": {
-                "pocketmine/spl": "<0.4"
-            },
-            "require-dev": {
-                "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "1.9.4",
-                "phpstan/phpstan-strict-rules": "^1.0",
-                "phpunit/phpunit": "^9.5"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "./src"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "description": "Ad-hoc autoloading components used by PocketMine-MP",
-            "support": {
-                "issues": "https://github.com/pmmp/ClassLoader/issues",
-                "source": "https://github.com/pmmp/ClassLoader/tree/0.3.0"
-            },
-            "abandoned": "pocketmine/pocketmine-mp",
-            "time": "2023-01-23T19:46:53+00:00"
-        },
-        {
             "name": "pocketmine/color",
             "version": "0.3.1",
             "source": {
@@ -1372,51 +1326,6 @@
             "time": "2021-06-18T19:08:09+00:00"
         },
         {
-            "name": "pocketmine/log-pthreads",
-            "version": "0.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pmmp/LogPthreads.git",
-                "reference": "0ecfea6dcfc9a9f5c86e126ac1661732de5c5666"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/LogPthreads/zipball/0ecfea6dcfc9a9f5c86e126ac1661732de5c5666",
-                "reference": "0ecfea6dcfc9a9f5c86e126ac1661732de5c5666",
-                "shasum": ""
-            },
-            "require": {
-                "ext-pthreads": "^5.0",
-                "php": "^8.0",
-                "pocketmine/log": "^0.4.0"
-            },
-            "conflict": {
-                "pocketmine/spl": "<0.4"
-            },
-            "require-dev": {
-                "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "1.8.11",
-                "phpstan/phpstan-strict-rules": "^1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "./src"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "description": "Logging components specialized for pthreads used by PocketMine-MP and related projects",
-            "support": {
-                "issues": "https://github.com/pmmp/LogPthreads/issues",
-                "source": "https://github.com/pmmp/LogPthreads/tree/0.5.0"
-            },
-            "abandoned": "pocketmine/pocketmine-mp",
-            "time": "2023-01-23T19:52:12+00:00"
-        },
-        {
             "name": "pocketmine/math",
             "version": "0.4.3",
             "source": {
@@ -1501,16 +1410,16 @@
         },
         {
             "name": "pocketmine/pocketmine-mp",
-            "version": "5.0.0-BETA3",
+            "version": "5.0.0-BETA4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/PocketMine-MP.git",
-                "reference": "b8abe34904beab1befd3707ac3fa4a9761533b89"
+                "reference": "1c691167171fd9310446649e06bcc006c616db2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/b8abe34904beab1befd3707ac3fa4a9761533b89",
-                "reference": "b8abe34904beab1befd3707ac3fa4a9761533b89",
+                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/1c691167171fd9310446649e06bcc006c616db2f",
+                "reference": "1c691167171fd9310446649e06bcc006c616db2f",
                 "shasum": ""
             },
             "require": {
@@ -1531,7 +1440,7 @@
                 "ext-openssl": "*",
                 "ext-pcre": "*",
                 "ext-phar": "*",
-                "ext-pthreads": "^5.1",
+                "ext-pmmpthread": "^6.0",
                 "ext-reflection": "*",
                 "ext-simplexml": "*",
                 "ext-sockets": "*",
@@ -1549,17 +1458,15 @@
                 "pocketmine/bedrock-protocol": "~21.0.0+bedrock-1.19.80",
                 "pocketmine/binaryutils": "^0.2.1",
                 "pocketmine/callback-validator": "^1.0.2",
-                "pocketmine/classloader": "^0.3.0",
                 "pocketmine/color": "^0.3.0",
                 "pocketmine/errorhandler": "^0.6.0",
                 "pocketmine/locale-data": "~2.19.0",
                 "pocketmine/log": "^0.4.0",
-                "pocketmine/log-pthreads": "^0.5.0",
                 "pocketmine/math": "^0.4.0",
                 "pocketmine/nbt": "^0.3.2",
                 "pocketmine/raklib": "^0.15.0",
                 "pocketmine/raklib-ipc": "^0.2.0",
-                "pocketmine/snooze": "^0.4.0",
+                "pocketmine/snooze": "^0.5.0",
                 "ramsey/uuid": "^4.1",
                 "symfony/filesystem": "^5.4"
             },
@@ -1586,7 +1493,7 @@
             "homepage": "https://pmmp.io",
             "support": {
                 "issues": "https://github.com/pmmp/PocketMine-MP/issues",
-                "source": "https://github.com/pmmp/PocketMine-MP/tree/5.0.0-BETA3"
+                "source": "https://github.com/pmmp/PocketMine-MP/tree/5.0.0-BETA4"
             },
             "funding": [
                 {
@@ -1598,7 +1505,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2023-05-17T18:47:42+00:00"
+            "time": "2023-05-23T00:52:57+00:00"
         },
         {
             "name": "pocketmine/raklib",
@@ -1686,25 +1593,25 @@
         },
         {
             "name": "pocketmine/snooze",
-            "version": "0.4.0",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/Snooze.git",
-                "reference": "6b1d6cc645d674590ff9be2438ac00032f9ee292"
+                "reference": "a86d9ee60ce44755d166d3c7ba4b8b8be8360915"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/Snooze/zipball/6b1d6cc645d674590ff9be2438ac00032f9ee292",
-                "reference": "6b1d6cc645d674590ff9be2438ac00032f9ee292",
+                "url": "https://api.github.com/repos/pmmp/Snooze/zipball/a86d9ee60ce44755d166d3c7ba4b8b8be8360915",
+                "reference": "a86d9ee60ce44755d166d3c7ba4b8b8be8360915",
                 "shasum": ""
             },
             "require": {
-                "ext-pthreads": "^5.0",
-                "php-64bit": "^8.0"
+                "ext-pmmpthread": "^6.0",
+                "php-64bit": "^8.1"
             },
             "require-dev": {
                 "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "1.9.14",
+                "phpstan/phpstan": "1.10.3",
                 "phpstan/phpstan-strict-rules": "^1.0"
             },
             "type": "library",
@@ -1720,9 +1627,9 @@
             "description": "Thread notification management library for code using the pthreads extension",
             "support": {
                 "issues": "https://github.com/pmmp/Snooze/issues",
-                "source": "https://github.com/pmmp/Snooze/tree/0.4.0"
+                "source": "https://github.com/pmmp/Snooze/tree/0.5.0"
             },
-            "time": "2023-01-23T19:43:19+00:00"
+            "time": "2023-05-22T23:43:01+00:00"
         },
         {
             "name": "psr/cache",
