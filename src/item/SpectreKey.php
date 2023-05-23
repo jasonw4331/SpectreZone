@@ -29,7 +29,7 @@ final class SpectreKey extends Item implements Releasable, ItemComponents{
 		return 1;
 	}
 
-	public function onReleaseUsing(Player $player) : ItemUseResult{
+	public function onReleaseUsing(Player $player, array &$returnedItems) : ItemUseResult{
 		/** @var SpectreZone $plugin */
 		$plugin = Server::getInstance()->getPluginManager()->getPlugin('SpectreZone');
 		if($player->getWorld() === Server::getInstance()->getWorldManager()->getWorldByName('SpectreZone')){
@@ -41,7 +41,7 @@ final class SpectreKey extends Item implements Releasable, ItemComponents{
 			$player->setViewDistance(3);
 		}
 		$player->teleport($position);
-		return ItemUseResult::NONE();
+		return parent::onReleaseUsing($player, $returnedItems);
 	}
 
 	/**
