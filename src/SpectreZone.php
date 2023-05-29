@@ -24,7 +24,6 @@ use pocketmine\crafting\ShapedRecipe;
 use pocketmine\event\EventPriority;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use pocketmine\item\StringToItemParser;
 use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\NBT;
@@ -82,8 +81,6 @@ final class SpectreZone extends PluginBase{
 			'spectre_key' => SpectreKey::class
 		] as $itemName => $class){
 			$itemFactory->registerItem($class, $namespace . $itemName, ucwords(str_replace('_', ' ', $itemName)));
-			$itemInstance = $itemFactory->get($namespace . $itemName);
-			StringToItemParser::getInstance()->register($itemName, static fn(string $input) => $itemInstance);
 		}
 
 		$this->getLogger()->debug('Registered custom items');
@@ -156,8 +153,6 @@ final class SpectreZone extends PluginBase{
 				$blockInfo[3] ?? null,
 				$blockInfo[4] ?? null
 			);
-			$blockInstance = $blockFactory->get($namespace . $blockName);
-			StringToItemParser::getInstance()->registerBlock($blockName, static fn(string $input) => $blockInstance);
 		}
 
 		$this->getLogger()->debug('Registered custom blocks');
