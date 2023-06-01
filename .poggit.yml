@@ -4,6 +4,7 @@ projects:
   SpectreZone:
     path: ""
     icon: "icon.png"
+    lint: false
     excludeDirs:
       - .github
     excludeFiles:
@@ -13,8 +14,6 @@ projects:
       - phpstan.neon.dist
       - phpstan-baseline.php
       - .php-cs-fixer.php
-      - composer.json
-      - composer.lock
     libs:
       - src: jasonw4331/libCustomPack/libCustomPack
         version: ^1.0.0
