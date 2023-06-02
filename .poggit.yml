@@ -4,7 +4,6 @@ projects:
   SpectreZone:
     path: ""
     icon: "icon.png"
-    lint: false
     excludeDirs:
       - .github
     excludeFiles:
