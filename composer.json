@@ -23,7 +23,7 @@
 				"source": {
 					"url": "https://github.com/CustomiesDevs/Customies.git",
 					"type": "git",
-					"reference": "feature/pm5"
+					"reference": "master"
 				},
 				"autoload": {
 					"psr-4": {
