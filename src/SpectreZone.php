@@ -10,6 +10,7 @@ use customiesdevs\customies\item\CreativeInventoryInfo;
 use customiesdevs\customies\item\CustomiesItemFactory;
 use jasonw4331\SpectreZone\block\SpectreBlock;
 use jasonw4331\SpectreZone\block\SpectreCoreBlock;
+use jasonw4331\SpectreZone\item\CustomItemsRegistry;
 use jasonw4331\SpectreZone\item\Ectoplasm;
 use jasonw4331\SpectreZone\item\SpectreIngot;
 use jasonw4331\SpectreZone\item\SpectreKey;
@@ -97,10 +98,10 @@ final class SpectreZone extends PluginBase{
 			[
 				'A' => new ExactRecipeIngredient(VanillaItems::LAPIS_LAZULI()),
 				'B' => new ExactRecipeIngredient(VanillaItems::GOLD_INGOT()),
-				'C' => new ExactRecipeIngredient($itemFactory->get($namespace . 'ectoplasm'))
+				'C' => new ExactRecipeIngredient(CustomItemsRegistry::ECTOPLASM())
 			],
 			[
-				$itemFactory->get($namespace . 'spectre_ingot')
+				CustomItemsRegistry::ECTOPLASM()
 			]
 		));
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
@@ -112,10 +113,10 @@ final class SpectreZone extends PluginBase{
 			[
 				'A' => new ExactRecipeIngredient(VanillaItems::LAPIS_LAZULI()),
 				'B' => new ExactRecipeIngredient(VanillaItems::GOLD_INGOT()),
-				'C' => new ExactRecipeIngredient($itemFactory->get($namespace . 'ectoplasm'))
+				'C' => new ExactRecipeIngredient(CustomItemsRegistry::ECTOPLASM())
 			],
 			[
-				$itemFactory->get($namespace . 'spectre_ingot', 9)
+				CustomItemsRegistry::SPECTRE_INGOT()->setCount(9)
 			]
 		));
 		$craftManager->registerShapedRecipe(new ShapedRecipe(
@@ -125,11 +126,11 @@ final class SpectreZone extends PluginBase{
 				'  A'
 			],
 			[
-				'A' => new ExactRecipeIngredient($itemFactory->get($namespace . 'spectre_ingot')),
+				'A' => new ExactRecipeIngredient(CustomItemsRegistry::SPECTRE_INGOT()),
 				'B' => new ExactRecipeIngredient(VanillaItems::ENDER_PEARL())
 			],
 			[
-				$itemFactory->get($namespace . 'spectre_key')
+				CustomItemsRegistry::SPECTRE_KEY()
 			]
 		));
 

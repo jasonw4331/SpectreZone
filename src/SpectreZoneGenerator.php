@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace jasonw4331\SpectreZone;
 
-use customiesdevs\customies\block\CustomiesBlockFactory;
+use jasonw4331\SpectreZone\block\CustomBlocksRegistry;
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
 use pocketmine\block\VanillaBlocks;
@@ -37,8 +37,7 @@ final class SpectreZoneGenerator extends Generator{
 	}
 
 	public function generateChunk(ChunkManager $world, int $chunkX, int $chunkZ) : void{
-		$blockFactory = CustomiesBlockFactory::getInstance();
-		$block = $blockFactory->get('spectrezone:spectre_block');
+		$block = CustomBlocksRegistry::SPECTRE_BLOCK();
 
 		$chunk = new Chunk(
 			array_fill(Chunk::MIN_SUBCHUNK_INDEX, Chunk::MAX_SUBCHUNK_INDEX - Chunk::MIN_SUBCHUNK_INDEX,
@@ -54,7 +53,7 @@ final class SpectreZoneGenerator extends Generator{
 		);
 
 		if($this->isChunkValid($chunkX, $chunkZ)){
-			$block = $blockFactory->get('spectrezone:spectre_core');
+			$block = CustomBlocksRegistry::SPECTRE_CORE();
 
 			$center = (int) ceil(Chunk::EDGE_LENGTH / 2);
 
