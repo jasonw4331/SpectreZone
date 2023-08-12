@@ -8,7 +8,14 @@ use pocketmine\item\Item;
 use pocketmine\utils\CloningRegistryTrait;
 
 /**
+ * This doc-block is generated automatically, do not modify it manually.
+ * This must be regenerated whenever registry members are added, removed or changed.
+ * @see build/generate-registry-annotations.php
  * @generate-registry-docblock
+ *
+ * @method static Ectoplasm ECTOPLASM()
+ * @method static SpectreIngot SPECTRE_INGOT()
+ * @method static SpectreKey SPECTRE_KEY()
  */
 final class CustomItemsRegistry{
 	use CloningRegistryTrait;

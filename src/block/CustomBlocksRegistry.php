@@ -8,7 +8,13 @@ use pocketmine\block\Block;
 use pocketmine\utils\CloningRegistryTrait;
 
 /**
+ * This doc-block is generated automatically, do not modify it manually.
+ * This must be regenerated whenever registry members are added, removed or changed.
+ * @see build/generate-registry-annotations.php
  * @generate-registry-docblock
+ *
+ * @method static SpectreBlock SPECTRE_BLOCK()
+ * @method static SpectreCoreBlock SPECTRE_CORE()
  */
 final class CustomBlocksRegistry{
 	use CloningRegistryTrait;
