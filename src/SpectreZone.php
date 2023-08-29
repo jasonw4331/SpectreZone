@@ -18,6 +18,7 @@ use libCustomPack\libCustomPack;
 use pocketmine\block\Block;
 use pocketmine\block\BlockBreakInfo;
 use pocketmine\block\BlockIdentifier;
+use pocketmine\block\BlockTypeIds;
 use pocketmine\block\BlockTypeInfo;
 use pocketmine\color\Color;
 use pocketmine\crafting\ExactRecipeIngredient;
@@ -147,7 +148,7 @@ final class SpectreZone extends PluginBase{
 			'spectre_core' => [SpectreCoreBlock::class, BlockBreakInfo::indestructible(), new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE)]
 		] as $blockName => $blockInfo){
 			$blockFactory->registerBlock(
-				static fn($id) => new $blockInfo[0](new BlockIdentifier($id), ucwords(str_replace('_', ' ', $blockName)), new BlockTypeInfo($blockInfo[1])),
+				static fn() => new $blockInfo[0](new BlockIdentifier(BlockTypeIds::newId()), ucwords(str_replace('_', ' ', $blockName)), new BlockTypeInfo($blockInfo[1])),
 				$namespace . $blockName,
 				null,
 				$blockInfo[2] ?? null,
