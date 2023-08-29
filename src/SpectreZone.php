@@ -144,11 +144,11 @@ final class SpectreZone extends PluginBase{
 		 * @phpstan-var array{Block, BlockBreakInfo, ?CreativeInventoryInfo, ?Closure, ?Closure} $blockInfo
 		 */
 		foreach([
-			'spectre_block' => [SpectreBlock::class, BlockBreakInfo::indestructible(), new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE)],
-			'spectre_core' => [SpectreCoreBlock::class, BlockBreakInfo::indestructible(), new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE)]
+			'spectre_block' => [SpectreBlock::class, BlockBreakInfo::indestructible(), new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE), null],
+			'spectre_core' => [SpectreCoreBlock::class, BlockBreakInfo::indestructible(), new CreativeInventoryInfo(CreativeInventoryInfo::CATEGORY_CONSTRUCTION, CreativeInventoryInfo::NONE), null]
 		] as $blockName => $blockInfo){
 			$blockFactory->registerBlock(
-				static fn() => new $blockInfo[0](new BlockIdentifier(BlockTypeIds::newId()), ucwords(str_replace('_', ' ', $blockName)), new BlockTypeInfo($blockInfo[1])),
+				static fn() => new $blockInfo[0](new BlockIdentifier(BlockTypeIds::newId(), $blockInfo[5]), ucwords(str_replace('_', ' ', $blockName)), new BlockTypeInfo($blockInfo[1])),
 				$namespace . $blockName,
 				null,
 				$blockInfo[2] ?? null,
